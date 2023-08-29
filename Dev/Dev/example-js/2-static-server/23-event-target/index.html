@@ -1,0 +1,101 @@
+<!-- addEventListerner -->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>TODO list</title>
+	<style type="text/css">
+		li {
+	      display: grid;
+	      grid-template-columns: 1fr 1fr 1fr; /* Chia đều thành 3 cột */
+	      align-items: center; /* Căn giữa theo chiều dọc */
+	      padding: 10px;
+	      border: 1px solid #ccc;
+	    }
+
+	    .delete-btn {
+	      background-color: red; /* Màu đỏ cho nút Delete */
+	      color: #fff;
+	      border: none;
+	      padding: 5px;
+	      border-radius: 4px;
+	      cursor: pointer;
+	      font-size: 14px;
+	      width: 50px; /* Chiều rộng của nút Delete */
+	    }
+
+	    .delete-btn:hover {
+	      background-color: #cc0000; /* Đổi màu đỏ khi hover */
+	    }
+	</style>
+</head>
+<body>
+	<input id="new-item" type="text" />
+	<button id="add-btn">Add</button>
+	<ul id ="todo-list">
+		<!-- <li>Take showwers</li>
+		<li>Have a walk</li>
+		<li>Go to bed</li> -->
+	</ul>
+	
+	<script type="text/javascript">
+		var storageKey = 'todoList';
+		var dataString = localStorage.getItem(storageKey);
+		var htmlList = document.getElementById('todo-list');
+		var addBtn = document.getElementById('add-btn');
+
+		// addBtn.onclick = addItem;
+		addBtn.addEventListener('click', addItem);
+		addBtn.addEventListener('click', function(){
+			console.log('Add button is clicked');
+		});
+		htmlList.addEventListener('click', onListClicked);
+
+		var todoList;
+
+		if(dataString){
+			todoList = JSON.parse(dataString);
+		} else {
+			todoList = [];
+		}
+
+		function onListClicked(event) {
+			var button = event.target;
+			var i = parseInt(button.dataset.id);
+			todoList.splice(i, 1);
+			render();
+			localStorage.setItem(storageKey, JSON.stringify(todoList));
+		}
+
+		
+		//addBtn trigger an event
+		//event listener
+
+		function addItem(){
+			//get value of the input
+			var input = document.getElementById('new-item');
+			var newItem = input.value;
+			// add to todoList aray
+			todoList.push(newItem);
+			// re-render
+			render();
+			//clear input
+			input.value = '';
+			// store data
+			localStorage.setItem(storageKey, JSON.stringify(todoList));
+		}
+		
+		function render(){
+
+		
+		var content = todoList.map(function(item, i) {
+	      return '<li>' + item + ' <button data-id="' + i + '" class="delete-btn">Delete</button></li>';
+	    });
+
+		 htmlList.innerHTML = content.join('');	
+		}
+		render();
+	</script>
+</body>
+</html>
