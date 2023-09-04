@@ -66,8 +66,59 @@
         $_SESSION['loggedin'] = true;
         $_SESSION['user_info'] = $user_info;
     }
+    
+          // Handle redeem code
+     if ($loggedin && isset($_POST['redeem_submit'])) {
+        $redeemCode = $_POST['redeem_code'];
+        $customerId = $user_info['id'];
+
+        // Kiểm tra xem mã mua hàng đã được sử dụng hay chưa
+        $sqlCheckRedeem = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCode'";
+        $resultCheckRedeem = $conn->query($sqlCheckRedeem);
+
+        if ($resultCheckRedeem->num_rows == 0) {
+            // Thêm mã mua hàng vào cơ sở dữ liệu
+            $sqlInsertRedeem = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerId, '$redeemCode')";
+            if ($conn->query($sqlInsertRedeem) === TRUE) {
+                // Cập nhật quay_count bằng cách thêm 1
+                $sqlUpdateQuayCount = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerId";
+                if ($conn->query($sqlUpdateQuayCount) === TRUE) {
+                    // Cập nhật power_table_hidden từ 1 thành 0 (nếu hiện tại là 1)
+                    $sqlUpdatePowerTable = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerId AND power_table_hidden = 1";
+                    $conn->query($sqlUpdatePowerTable);
+
+                    // Cập nhật quay_count trong mảng $user_info
+                    $user_info['quay_count'] += 1;
+                    $_SESSION['user_info']['quay_count'] = $user_info['quay_count'];
+                    $_SESSION['success_message'] = "Nhập mã mua hàng thành công. Lượt quay của bạn đã được cập nhật.";
+                } else {
+                    $_SESSION['error_message'] = "Lỗi cập nhật quay_count: " . $conn->error;
+                }
+            } else {
+                $_SESSION['error_message'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+            }
+        } else {
+            $_SESSION['error_message'] = "Mã mua hàng đã được sử dụng trước đó.";
+        }
+
+        header("Location: ./index.php"); // Chuyển hướng đến cùng một trang
+        exit;
+    }
+
+    // Ở phần nội dung trang:
     ?>
     <div class="container mt-5">
+        <?php
+        if(isset($_SESSION['success_message'])) {
+            echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+            unset($_SESSION['success_message']); // Xóa thông điệp sau khi hiển thị
+        }
+
+        if(isset($_SESSION['error_message'])) {
+            echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+            unset($_SESSION['error_message']); // Xóa thông điệp sau khi hiển thị
+        }
+        ?>
         <?php if (!$loggedin) { ?>
             <div class="login-form">
                 <h1>Đăng nhập</h1>
@@ -87,51 +138,61 @@
             </div>
         <?php } else { ?>
             <div class="vip-info">
-                <h1>Thông tin khách VIP</h1>
-                <table>
-                    <tr>
-                        <th>Full Name</th>
-                        <th>Phone</th>
-                        <th>Level</th>
-                        <th>Points</th>
-                        <th>Kết quả quay thưởng</th>
-                        <th>Lượt quay còn lại</th>
-                    </tr>
-                    <?php
-                    if ($loggedin) {
-                        echo "<tr>";
-                        echo "<td>" . $user_info['fullname'] . "</td>";
-                        echo "<td>" . $user_info['phone'] . "</td>";
-                        echo "<td>" . $user_info['level'] . "</td>";
-                        echo "<td>" . $user_info['points'] . "</td>";
+                  <div class="redeem-form">
+                      <h2>Nhập mã mua hàng</h2>
+                      <form method="post" action="">
+                          <div class="form-group">
+                              <label for="redeem_code">Mã mua hàng:</label>
+                              <input type="text" class="form-control" id="redeem_code" name="redeem_code" required>
+                          </div>
+                          <button type="submit" name="redeem_submit" class="btn btn-primary">Nhập mã</button>
+                      </form>
+                  </div>
+                  <h1>Thông tin khách VIP</h1>
+                  <table>
+                      <tr>
+                          <th>Full Name</th>
+                          <th>Phone</th>
+                          <th>Level</th>
+                          <th>Points</th>
+                          <th>Kết quả quay thưởng</th>
+                          <th>Lượt quay còn lại</th>
+                      </tr>
+                      <?php
+                      if ($loggedin) {
+                          echo "<tr>";
+                          echo "<td>" . $user_info['fullname'] . "</td>";
+                          echo "<td>" . $user_info['phone'] . "</td>";
+                          echo "<td>" . $user_info['level'] . "</td>";
+                          echo "<td>" . $user_info['points'] . "</td>";
 
-                        // Lấy thông tin kết quả quay từ bảng quay_thuong
-                        $customerId = $user_info['id'];
-                        $sqlGetQuayResults = "SELECT result, is_received, quay_lan FROM quay_thuong WHERE customer_id = $customerId ORDER BY quay_lan DESC LIMIT 100";
-                        $resultQuayResults = $conn->query($sqlGetQuayResults);
+                          // Lấy thông tin kết quả quay từ bảng quay_thuong
+                          $customerId = $user_info['id'];
+                          $sqlGetQuayResults = "SELECT result, is_received, quay_lan FROM quay_thuong WHERE customer_id = $customerId ORDER BY quay_lan DESC LIMIT 100";
+                          $resultQuayResults = $conn->query($sqlGetQuayResults);
 
-                        echo "<td>";
-                        if ($resultQuayResults->num_rows > 0) {
-                            while ($rowQuayResult = $resultQuayResults->fetch_assoc()) {
-                                $color = $rowQuayResult['is_received'] ? 'color: red;' : '';
-                                // Tạo ID duy nhất cho mỗi kết quả
-                                $result_id = 'prize-result-' . $rowQuayResult["id"];
-                                echo "<span id='$result_id' style='$color'>Nhận: " . $rowQuayResult["result"] . "</span><br>";
-                            }
-                        } else {
-                            echo "Chưa có kết quả quay nào.";
-                        }
-                        echo "</td>";
+                          echo "<td>";
+                          if ($resultQuayResults->num_rows > 0) {
+                              while ($rowQuayResult = $resultQuayResults->fetch_assoc()) {
+                                  $color = $rowQuayResult['is_received'] ? 'color: red;' : '';
+                                  // Tạo ID duy nhất cho mỗi kết quả
+                                  $result_id = 'prize-result-' . $rowQuayResult["id"];
+                                  echo "<span id='$result_id' style='$color'>Nhận: " . $rowQuayResult["result"] . "</span><br>";
+                              }
+                          } else {
+                              echo "Chưa có kết quả quay nào.";
+                          }
+                          echo "</td>";
 
-                        // Hiển thị giá trị quay_count
-                        echo "<td>" . $user_info['quay_count'] . " lượt</td>";
+                          // Hiển thị giá trị quay_count
+                          echo "<td>" . $user_info['quay_count'] . " lượt</td>";
 
-                        echo "</tr>";
-                    }
-                    ?>
-                </table>
-                <a href="?logout=true" class="btn btn-danger">Đăng xuất</a>
-            </div>
+                          echo "</tr>";
+                      }
+                      ?>
+                  </table>
+                  <a href="?logout=true" class="btn btn-danger">Đăng xuất</a>
+              </div>
             <?php if ($user_info['level'] >= 'Vip2' && $user_info['level'] <= 'Vip5') { ?>
                 <div class="congratulations">
                     <!-- Lời chúc mừng đến khách hàng -->
