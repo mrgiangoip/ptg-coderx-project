@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <title>Danh sách khách VIP</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/style.css" type="text/css" />
+        <link rel="stylesheet" href="./style.css" type="text/css" />
         <link rel="stylesheet" href="https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/main.css" type="text/css" />
         <script type="text/javascript" src="https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/Winwheel.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
@@ -85,6 +85,11 @@
                 if ($conn->query($sqlUpdateQuayCount) === TRUE) {
                     // Cập nhật power_table_hidden từ 1 thành 0 (nếu hiện tại là 1)
                     $sqlUpdatePowerTable = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerId AND power_table_hidden = 1";
+                      if($conn->query($sqlUpdatePowerTable) === TRUE) {
+                          // Cập nhật power_table_hidden trong mảng $user_info
+                          $user_info['power_table_hidden'] = 0;
+                          $_SESSION['user_info']['power_table_hidden'] = 0;
+                      }
                     $conn->query($sqlUpdatePowerTable);
 
                     // Cập nhật quay_count trong mảng $user_info
@@ -104,6 +109,40 @@
         header("Location: ./index.php"); // Chuyển hướng đến cùng một trang
         exit;
     }
+
+    // Kiểm tra nếu quản trị viên đã gửi form nhập mã mua hàng
+    if (isset($_POST['admin_redeem_submit'])) {
+    $redeemCodeAdmin = $_POST['admin_redeem_code'];
+          $customerIdAdmin = $_POST['customer_id'];
+
+          // Kiểm tra mã mua hàng đã được sử dụng chưa
+          $sqlCheckRedeemAdmin = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCodeAdmin'";
+          $resultCheckRedeemAdmin = $conn->query($sqlCheckRedeemAdmin);
+
+          if ($resultCheckRedeemAdmin->num_rows == 0) {
+              // Thêm mã mua hàng vào CSDL
+              $sqlInsertRedeemAdmin = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerIdAdmin, '$redeemCodeAdmin')";
+              if ($conn->query($sqlInsertRedeemAdmin) === TRUE) {
+                  // Tăng quay_count lên 1
+                  $sqlUpdateQuayCountAdmin = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerIdAdmin";
+                  $conn->query($sqlUpdateQuayCountAdmin);
+
+                  // Nếu power_table_hidden = 1 thì cập nhật thành 0
+                  $sqlUpdatePowerTableAdmin = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerIdAdmin AND power_table_hidden = 1";
+                  $conn->query($sqlUpdatePowerTableAdmin);
+
+                  $_SESSION['admin_message'] = "Cập nhật mã mua hàng thành công cho khách hàng có ID $customerIdAdmin.";
+              } else {
+                  $_SESSION['admin_error'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+              }
+          } else {
+              $_SESSION['admin_error'] = "Mã mua hàng đã được sử dụng.";
+          }
+
+          header("Location: ./index.php");
+          exit;
+      }
+
 
     // Ở phần nội dung trang:
     ?>
@@ -233,8 +272,9 @@
                 </td>
             </tr>
         </table>
-        <script>
-            // Create new wheel object specifying the parameters at creation time.
+          <script>
+             // Create new wheel object specifying the parameters at creation time.
+            
             let theWheel = new Winwheel({
                 'outerRadius'     : 212,        // Set outer radius so wheel fits inside the background.
                 'innerRadius'     : 75,         // Make wheel hollow so segments don't go all way to center.
@@ -244,17 +284,17 @@
                 'numSegments'     : 12,         // Specify number of segments.
                 'segments'        :             // Define segments including colour and text.
                 [                               // font size and test colour overridden on backrupt segments.
-                   {'fillStyle' : '#ee1c24', 'text' : 'Cam'},
-                   {'fillStyle' : '#3cb878', 'text' : 'Quýt'},
-                   {'fillStyle' : '#f6989d', 'text' : 'Mít'},
-                   {'fillStyle' : '#00aef0', 'text' : 'Dừa'},
-                   {'fillStyle' : '#f26522', 'text' : 'Bưởi'},
-                   {'fillStyle' : '#00aef0', 'text' : 'Dứa'},
-                   {'fillStyle' : '#e70697', 'text' : 'Táo'},
+                   {'fillStyle' : '#5dcce9', 'text' : 'WINK', 'textFontSize' : 12},
+                   {'fillStyle' : '#5dcce9', 'text' : 'SUNGLASSES', 'textFontSize' : 12},
+                   {'fillStyle' : '#fed041', 'text' : 'KISSING', 'textFontSize' : 12},
+                   {'fillStyle' : '#fa777d', 'text' : 'RELAXED', 'textFontSize' : 12},
+                   {'fillStyle' : '#fa777d', 'text' : 'FLUSHED', 'textFontSize' : 12},
+                   {'fillStyle' : '#5dcce9', 'text' : 'GRIN', 'textFontSize' : 12},
+                   {'fillStyle' : '#5dcce9', 'text' : 'NEUTRAL', 'textFontSize' : 12},
                    {'fillStyle' : '#000000', 'text' : 'Chúc may mắn', 'textFontSize' : 12, 'textFillStyle' : '#ffffff'},
-                   {'fillStyle' : '#a186be', 'text' : 'Na'},
-                   {'fillStyle' : '#fff200', 'text' : 'Xoài'},
-                   {'fillStyle' : '#00aef0', 'text' : 'Đào'},
+                   {'fillStyle' : '#fed041', 'text' : 'ANGRY', 'textFontSize' : 12},
+                   {'fillStyle' : '#fa777d', 'text' : 'HEART EYES', 'textFontSize' : 12},
+                   {'fillStyle' : '#fa777d', 'text' : 'JOY', 'textFontSize' : 12},
                    {'fillStyle' : '#ffffff', 'text' : 'Mất lượt', 'textFontSize' : 12}
                 ],
                 'animation' :           // Specify the animation to use.
@@ -329,7 +369,7 @@
             // -------------------------------------------------------
             // Click handler for spin button.
             // -------------------------------------------------------
-            function startSpin()
+             function startSpin()
             {
                 // Ensure that spinning can't be clicked again while already running.
                 if (wheelSpinning == false) {
@@ -403,9 +443,10 @@
                         }
                     });
                 }
-        </script>
-                     <!--code quay thưởng -->
-                </div>
+          </script>
+          <!--code quay thưởng -->
+        </div>
+                  
             <?php } else { ?>
                 <div class="not-qualified">
                     <!-- Thông báo cho khách hàng không phải Vip2 đến Vip5 -->
@@ -416,7 +457,6 @@
 
 
            <?php if ($user_info['level'] == 'admin') { ?>
-            <h2>Danh sách khách VIP từ Vip1 đến Vip5</h2>
             <div class="container vip-info  mt-5">
               
                <form method="post" action="">
@@ -507,84 +547,106 @@
                   <button type="submit" class="btn btn-primary">Tìm kiếm</button>
               </form>
             </div>
-            <table cellpadding="0" cellspacing="0" border="0" class="luckywheel">
-                <!-- ... (Table headers) ... -->
-                <tr>
-                    <th>Full Name</th>
-                    <th>Phone</th>
-                    <th>Level</th>
-                    <th>Points</th>
-                    <th style="width: 30% !important;">Kết quả</th>
-                    <th style="width: 30% !important;">Đã nhận</th>
-                </tr>
-                <?php
-                // Xử lý tìm kiếm khách hàng VIP theo số điện thoại
-                if (isset($_POST['phone_search']) && !empty($_POST['phone_search'])) {
-                    $phone_search = $_POST['phone_search'];
-                    $filter_sql = " AND phone LIKE '%$phone_search%'";
-                } else {
-                    $filter_sql = "";
-                }
+            <div id="messageBox" style="margin: 10px 0px !important;"></div>
+            <?php
+              if(isset($_SESSION['admin_message'])) {
+                  echo "<div class='alert alert-success'>" . $_SESSION['admin_message'] . "</div>";
+                  unset($_SESSION['admin_message']); // Xóa thông báo sau khi đã hiển thị
+              }
+              if(isset($_SESSION['admin_error'])) {
+                  echo "<div class='alert alert-danger'>" . $_SESSION['admin_error'] . "</div>";
+                  unset($_SESSION['admin_error']); // Xóa thông báo lỗi sau khi đã hiển thị
+              }
+              ?>
+            <div class="vip-info">
+              <h2>Danh sách khách VIP từ Vip1 đến Vip5</h2>
+              <table cellpadding="0" cellspacing="0" border="0" class="luckywheel centered-content">
+                  <!-- ... (Table headers) ... -->
+                  <tr>
+                      <th style="width: 10% !important;">Full Name</th>
+                      <th style="width: 13% !important;">Phone</th>
+                      <th style="width: 7% !important;">Level</th>
+                      <th style="width: 7% !important;">Points</th>
+                      <th style="width: 33% !important;">Nhập mã mua hàng</th>
+                      <th style="width: 20% !important;">Kết quả</th>
+                      <th style="width: 10% !important;">Đã nhận</th>
+                  </tr>
+                  <?php
+                  // Xử lý tìm kiếm khách hàng VIP theo số điện thoại
+                  if (isset($_POST['phone_search']) && !empty($_POST['phone_search'])) {
+                      $phone_search = $_POST['phone_search'];
+                      $filter_sql = " AND phone LIKE '%$phone_search%'";
+                  } else {
+                      $filter_sql = "";
+                  }
 
-                // Filter by VIP level
-                $vip_filter = isset($_GET['vip_filter']) ? $_GET['vip_filter'] : 'all';
-                if ($vip_filter != 'all') {
-                    $filter_sql .= " AND level = '$vip_filter'";
-                }
+                  // Filter by VIP level
+                  $vip_filter = isset($_GET['vip_filter']) ? $_GET['vip_filter'] : 'all';
+                  if ($vip_filter != 'all') {
+                      $filter_sql .= " AND level = '$vip_filter'";
+                  }
 
-                // Pagination settings
-                $items_per_page = 999;
-                $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
-                $offset = ($current_page - 1) * $items_per_page;
+                  // Pagination settings
+                  $items_per_page = 999;
+                  $current_page = isset($_GET['page']) ? $_GET['page'] : 1;
+                  $offset = ($current_page - 1) * $items_per_page;
 
-                // Fetch and display VIP customers based on filter and phone search
-                $sql = "SELECT * FROM customers WHERE level LIKE 'Vip%' AND level <= 'Vip5'$filter_sql LIMIT $offset, $items_per_page";
-                $result = $conn->query($sql);
+                  // Fetch and display VIP customers based on filter and phone search
+                  $sql = "SELECT * FROM customers WHERE level LIKE 'Vip%' AND level <= 'Vip5'$filter_sql LIMIT $offset, $items_per_page";
+                  $result = $conn->query($sql);
 
-                if ($result->num_rows > 0) {
-                  while ($row = $result->fetch_assoc()) {
-                      echo "<tr>";
-                      echo "<td>" . $row["fullname"] . "</td>";
-                      echo "<td>" . $row["phone"] . "</td>";
-                      echo "<td>" . $row["level"] . "</td>";
-                      echo "<td>" . $row["points"] . "</td>";
+                  if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        echo "<tr>";
+                        echo "<td>" . $row["fullname"] . "</td>";
+                        echo "<td>" . $row["phone"] . "</td>";
+                        echo "<td>" . $row["level"] . "</td>";
+                        echo "<td>" . $row["points"] . "</td>";
+                        echo "<td>
+                                <form method='post' action=''>
+                                   <input type='hidden' name='customer_id' value='" . $row["id"] . "'>
+                                   <input type='text' name='admin_redeem_code'>
+                                   <input type='submit' class='btn btn-primary' name='admin_redeem_submit' value='Nhập mã'>
+                                 </form>
+                             </td>";
 
-                      // Lấy kết quả quay thưởng từ bảng quay_thuong
-                        $customerId = $row["id"];
-                        $prize_query = "SELECT result, is_received, id FROM quay_thuong WHERE customer_id = $customerId ORDER BY quay_lan DESC LIMIT 100";
-                        $prize_result = $conn->query($prize_query);
+                        // Lấy kết quả quay thưởng từ bảng quay_thuong
+                          $customerId = $row["id"];
+                          $prize_query = "SELECT result, is_received, id FROM quay_thuong WHERE customer_id = $customerId ORDER BY quay_lan DESC LIMIT 100";
+                          $prize_result = $conn->query($prize_query);
 
-                        if ($prize_result && $prize_result->num_rows > 0) {
-                            echo "<td>";
-                            $checkbox_data = "";  // chuỗi để lưu checkbox
-                            while ($prize_row = $prize_result->fetch_assoc()) {
-                              $result_id = 'prize-result-' . $prize_row["id"];
-                              $is_received = $prize_row['is_received'];
+                          if ($prize_result && $prize_result->num_rows > 0) {
+                              echo "<td>";
+                              $checkbox_data = "";  // chuỗi để lưu checkbox
+                              while ($prize_row = $prize_result->fetch_assoc()) {
+                                $result_id = 'prize-result-' . $prize_row["id"];
+                                $is_received = $prize_row['is_received'];
 
-                              // Xác định kiểu màu dựa trên trạng thái đã nhận
-                              $color_style = $is_received ? 'style="color: red;"' : '';
+                                // Xác định kiểu màu dựa trên trạng thái đã nhận
+                                $color_style = $is_received ? 'style="color: red;"' : '';
 
-                              echo "<span id='$result_id' $color_style>Nhận: " . $prize_row["result"] . "</span><br>";
+                                echo "<span id='$result_id' $color_style>Nhận: " . $prize_row["result"] . "</span><br>";
 
-                              // Lưu checkbox vào chuỗi
-                              $is_checked = $is_received ? 'checked' : '';
-                              $checkbox_data .= "<input type='checkbox' class='prize-received' data-result-id='$result_id' data-prize-id='" . $prize_row['id'] . "' $is_checked> Đã nhận<br>";
-                            }
-                            echo "</td>";
-                            // Hiển thị cột mới cho checkbox
-                            echo "<td>$checkbox_data</td>";
-                        } else {
-                            echo "<td>Chưa quay thưởng</td>";
-                            echo "<td></td>";   // Trường hợp không có kết quả quay thưởng, thêm một cột trống
+                                // Lưu checkbox vào chuỗi
+                                $is_checked = $is_received ? 'checked' : '';
+                                $checkbox_data .= "<input type='checkbox' class='prize-received' data-result-id='$result_id' data-prize-id='" . $prize_row['id'] . "' $is_checked> Đã nhận<br>";
+                              }
+                              echo "</td>";
+                              // Hiển thị cột mới cho checkbox
+                              echo "<td>$checkbox_data</td>";
+                          } else {
+                              echo "<td>Chưa quay thưởng</td>";
+                              echo "<td></td>";   // Trường hợp không có kết quả quay thưởng, thêm một cột trống
+                        }
+
+                        echo "</tr>";
                       }
-
-                      echo "</tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='5'>Không tìm thấy khách hàng VIP.</td></tr>";
-                }
-                ?>
-            </table>
+                  } else {
+                      echo "<tr><td colspan='5'>Không tìm thấy khách hàng VIP.</td></tr>";
+                  }
+                  ?>
+              </table>
+             </div>
     <!-- Pagination Links -->
     <?php
     $sql_count = "SELECT COUNT(*) AS total FROM customers WHERE level LIKE 'Vip%' AND level <= 'Vip5'$filter_sql";
@@ -631,37 +693,40 @@
         }
     </script>
     <script>
-    $(document).ready(function() {
-    // Đảm bảo rằng trang đã được tải hoàn thành trước khi thực hiện các thao tác
+      $(document).ready(function() {
+          $(document).on('change', '.prize-received', function() {
+              const prizeId = $(this).data('prize-id');
+              const isReceived = $(this).is(':checked');
 
-    // Lắng nghe sự kiện khi checkbox được thay đổi
-    $(document).on('change', '.prize-received', function() {
-        // Lấy các thông tin cần thiết từ thuộc tính data của checkbox
-        const prizeId = $(this).data('prize-id');
-        const isReceived = $(this).is(':checked');
+              if (isReceived) {
+                  $(`#${prizeId}`).css('color', 'red');
+              } else {
+                  $(`#${prizeId}`).css('color', 'black');
+              }
 
-        // Thay đổi màu sắc của các cột Kết quả và Kết quả quay thưởng tương ứng
-        if (isReceived) {
-            $(`#${prizeId}`).css('color', 'red');
-        } else {
-            $(`#${prizeId}`).css('color', 'black');
-        }
+              $.ajax({
+                  type: 'POST',
+                  url: './update_prize_received.php',
+                  data: {
+                      prizeId: prizeId,
+                      isReceived: isReceived ? 1 : 0
+                  },
+                  success: function(response) {
+                      // Remove old alert classes
+                      $('#messageBox').removeClass('alert-success alert-danger');
 
-        // Thực hiện AJAX request để cập nhật trạng thái đã nhận của kết quả
-        $.ajax({
-            type: 'POST',
-            url: './update_prize_received.php', // Thay đổi đường dẫn tương ứng
-            data: {
-                prizeId: prizeId,
-                isReceived: isReceived ? 1 : 0
-            },
-            success: function(response) {
-                // Xử lý phản hồi từ server nếu cần
-                alert(response);
-            }
-        });
-    });
-});
+                      // Determine the class based on isReceived value
+                      const alertClass = isReceived ? 'alert-success' : 'alert-danger';
+
+                      $('#messageBox').addClass(`alert ${alertClass}`).text(response).show();
+
+                      setTimeout(() => {
+                          $('#messageBox').fadeOut(); // Hide the message after 3 seconds
+                      }, 3000);
+                  }
+              });
+          });
+      });
     </script>
 </body>
 </html>

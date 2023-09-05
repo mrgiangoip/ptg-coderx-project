@@ -29,7 +29,11 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
         $stmt->bind_param("ii", $isReceived, $prizeId);
 
         if ($stmt->execute()) {
-            echo "Trạng thái quà đã được cập nhật thành công.";
+            if ($isReceived) {
+                echo "Trạng thái nhận quà đã được cập nhật thành công.";
+            } else {
+                echo "Trạng thái nhận quà đã được huỷ thành công.";
+            }
         } else {
             echo "Lỗi: " . $conn->error;
         }

@@ -45,7 +45,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
                         // Nếu đã quay đủ 3 lần, cập nhật cột "power_table_hidden" thành 1
                         $sqlUpdatePower = "UPDATE customers SET power_table_hidden = 1 WHERE id = $customerId";
                         if ($conn->query($sqlUpdatePower) === TRUE) {
-                            echo "Kết quả quay thưởng đã được cập nhật thành công. Bạn đã hoàn thành đủ số  lượt quay.";
+                            echo "Kết quả quay thưởng đã được cập nhật thành công. Bạn đã hoàn thành đủ số lượt quay.";
                         } else {
                             echo "Lỗi: " . $conn->error;
                         }
