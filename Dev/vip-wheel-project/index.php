@@ -5,11 +5,10 @@
     <title>Danh sách khách VIP</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <link rel="stylesheet" href="./style.css" type="text/css" />
-        <link rel="stylesheet" href="https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/main.css" type="text/css" />
+        <link rel="stylesheet" href="./main.css" type="text/css" />
         <script type="text/javascript" src="https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/Winwheel.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
 <body>
     <?php
     session_start();
@@ -19,16 +18,29 @@
     $password = "Vumanhtien1@@";
     $dbname = "gomhang_khachvi";
 
-    // Create connection
+    $wpDbname = "gomhang_gh2";
+    $wpUsername = "gomhang_gh2";
+    $wpPassword = "Vumanhtien1@@";
+
+    // Create connection to main database
     $conn = new mysqli($servername, $username, $password, $dbname);
 
-    // Check connection
+    // Create connection to WordPress database
+    $wpConn = new mysqli($servername, $wpUsername, $wpPassword, $wpDbname);
+
+    // Check main connection
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Set character set to utf8mb4
+    // Check WordPress connection
+    if ($wpConn->connect_error) {
+        die("WordPress connection failed: " . $wpConn->connect_error);
+    }
+
+    // Set character set to utf8mb4 for both databases
     $conn->set_charset("utf8mb4");
+    $wpConn->set_charset("utf8mb4");
 
     // Check if user is logged in
     $loggedin = false;
@@ -41,7 +53,7 @@
 
     if (isset($_POST['username']) && isset($_POST['password'])) {
         $username = $_POST['username'];
-        $password = md5($_POST['password']); // Assuming passwords are stored in MD5
+        $password = md5($_POST['password']); 
 
         $sql = "SELECT * FROM customers WHERE phone = '$username' AND password = '$password'";
         $result = $conn->query($sql);
@@ -49,99 +61,118 @@
         if ($result->num_rows > 0) {
             $loggedin = true;
             $user_info = $result->fetch_assoc();
+        } else {
+            $_SESSION['login_error'] = "Đăng nhập không thành công. Vui lòng kiểm tra lại số điện thoại hoặc mật khẩu!";
         }
     }
 
     // Logout
     if (isset($_GET['logout'])) {
         session_destroy();
-
-        // Xóa lịch sử trình duyệt và chuyển hướng người dùng đến trang đăng nhập
         echo '<script>window.location.replace("./index.php");</script>';
         exit;
     }
 
-    // Lưu lại thông tin người dùng vào session sau khi đăng nhập
     if ($loggedin) {
         $_SESSION['loggedin'] = true;
         $_SESSION['user_info'] = $user_info;
     }
-    
-          // Handle redeem code
-     if ($loggedin && isset($_POST['redeem_submit'])) {
-        $redeemCode = $_POST['redeem_code'];
-        $customerId = $user_info['id'];
 
-        // Kiểm tra xem mã mua hàng đã được sử dụng hay chưa
-        $sqlCheckRedeem = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCode'";
-        $resultCheckRedeem = $conn->query($sqlCheckRedeem);
+        // Handle redeem code for user
+      if ($loggedin && isset($_POST['redeem_submit'])) {
+          $redeemCode = $_POST['redeem_code'];
+          $customerId = $user_info['id'];
 
-        if ($resultCheckRedeem->num_rows == 0) {
-            // Thêm mã mua hàng vào cơ sở dữ liệu
-            $sqlInsertRedeem = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerId, '$redeemCode')";
-            if ($conn->query($sqlInsertRedeem) === TRUE) {
-                // Cập nhật quay_count bằng cách thêm 1
-                $sqlUpdateQuayCount = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerId";
-                if ($conn->query($sqlUpdateQuayCount) === TRUE) {
-                    // Cập nhật power_table_hidden từ 1 thành 0 (nếu hiện tại là 1)
-                    $sqlUpdatePowerTable = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerId AND power_table_hidden = 1";
-                      if($conn->query($sqlUpdatePowerTable) === TRUE) {
-                          // Cập nhật power_table_hidden trong mảng $user_info
-                          $user_info['power_table_hidden'] = 0;
-                          $_SESSION['user_info']['power_table_hidden'] = 0;
+          // Kiểm tra xem mã mua hàng đã tồn tại trong bảng redeem_history và đã được người dùng này nhập chưa
+          $sqlCheckRedeemHistory = "SELECT redeem_code FROM redeem_history WHERE redeem_code = '$redeemCode' AND customer_id = $customerId";
+          $resultCheckRedeemHistory = $conn->query($sqlCheckRedeemHistory);
+
+          if ($resultCheckRedeemHistory->num_rows > 0) {
+            $_SESSION['error_message'] = "Mã mua hàng đã tồn tại và bạn đã nhập rồi!";
+          } else {
+              // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup hay không
+              $sqlCheckOrder = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCode'";
+              $resultCheckOrder = $wpConn->query($sqlCheckOrder);
+
+              if ($resultCheckOrder->num_rows > 0) {
+                  // Cập nhật mã mua hàng vào bảng redeem_history
+                  $sqlInsertRedeem = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerId, '$redeemCode')";
+                  if ($conn->query($sqlInsertRedeem) === TRUE) {
+                      // Cập nhật số lượt quay và power_table_hidden cho khách hàng
+                      $sqlUpdateQuayAndPowerTable = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerId";
+                      $conn->query($sqlUpdateQuayAndPowerTable);
+
+                      // Kiểm tra quay_count sau khi đã cập nhật và cập nhật power_table_hidden nếu cần thiết
+                      $sqlCheckQuayCount = "SELECT quay_count FROM customers WHERE id = $customerId";
+                      $resultCheckQuayCount = $conn->query($sqlCheckQuayCount);
+                      $rowQuayCount = $resultCheckQuayCount->fetch_assoc();
+                      if ($rowQuayCount['quay_count'] >= 1) {
+                          $sqlUpdatePowerTable = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerId";
+                          $conn->query($sqlUpdatePowerTable);
                       }
-                    $conn->query($sqlUpdatePowerTable);
+                      $_SESSION['success_message'] = "Nhập mã mua hàng thành công và bạn đã nhận được thêm 1 lượt quay!";
+                      $user_info['quay_count'] += 1;
+                      $_SESSION['user_info']['quay_count'] = $user_info['quay_count'];
+                      $user_info['power_table_hidden'] = 0;
+                  } else {
+                      $_SESSION['error_message'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+                  }
+              } else {
+                  $_SESSION['error_message'] = "Mã mua hàng không hợp lệ.";
+              }
+          }
+      }
 
-                    // Cập nhật quay_count trong mảng $user_info
-                    $user_info['quay_count'] += 1;
-                    $_SESSION['user_info']['quay_count'] = $user_info['quay_count'];
-                    $_SESSION['success_message'] = "Nhập mã mua hàng thành công. Lượt quay của bạn đã được cập nhật.";
+      // Xử lý nhập mã mua hàng cho admin
+        if (isset($_POST['admin_redeem_submit'])) {
+            $redeemCodeAdmin = $_POST['admin_redeem_code'];
+            $customerIdAdmin = $_POST['customer_id'];
+
+            // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup hay không
+            $sqlCheckOrderAdmin = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCodeAdmin'";
+            $resultCheckOrderAdmin = $wpConn->query($sqlCheckOrderAdmin);
+
+            // Nếu mã tồn tại trong cơ sở dữ liệu WordPress
+            if ($resultCheckOrderAdmin->num_rows > 0) { 
+
+                // Kiểm tra xem mã đã tồn tại trong bảng redeem_history chưa
+                $sqlCheckRedeemAdmin = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCodeAdmin'";
+                $resultCheckRedeemAdmin = $conn->query($sqlCheckRedeemAdmin);
+
+                // Nếu mã chưa tồn tại trong bảng redeem_history
+                if ($resultCheckRedeemAdmin->num_rows == 0) { 
+                    // Thêm mã vào bảng redeem_history
+                    $sqlInsertRedeemAdmin = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerIdAdmin, '$redeemCodeAdmin')";
+                    if ($conn->query($sqlInsertRedeemAdmin) === TRUE) {
+
+                        // Tăng số lượng quay_count cho khách hàng
+                        $sqlUpdateQuayCountAdmin = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerIdAdmin";
+                        $conn->query($sqlUpdateQuayCountAdmin);
+
+                        // Kiểm tra giá trị của power_table_hidden
+                        $sqlCheckPowerTable = "SELECT power_table_hidden FROM customers WHERE id = $customerIdAdmin";
+                        $resultCheckPowerTable = $conn->query($sqlCheckPowerTable);
+                        $rowPowerTable = $resultCheckPowerTable->fetch_assoc();
+
+                        // Nếu power_table_hidden là 1, cập nhật giá trị thành 0
+                        if ($rowPowerTable['power_table_hidden'] == 1) {
+                            $sqlUpdatePowerTableAdmin = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerIdAdmin";
+                            $conn->query($sqlUpdatePowerTableAdmin);
+                        }
+
+                        $_SESSION['admin_message'] = "Cập nhật mã mua hàng thành công cho khách hàng có ID $customerIdAdmin.";
+                    } else {
+                        $_SESSION['admin_error'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+                    }
                 } else {
-                    $_SESSION['error_message'] = "Lỗi cập nhật quay_count: " . $conn->error;
+                    $_SESSION['admin_error'] = "Mã mua hàng đã tồn tại.";
                 }
             } else {
-                $_SESSION['error_message'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+                $_SESSION['admin_error'] = "Mã mua hàng không hợp lệ.";
             }
-        } else {
-            $_SESSION['error_message'] = "Mã mua hàng đã được sử dụng trước đó.";
+            header("Location: ./index.php");
+            exit;
         }
-
-        header("Location: ./index.php"); // Chuyển hướng đến cùng một trang
-        exit;
-    }
-
-    // Kiểm tra nếu quản trị viên đã gửi form nhập mã mua hàng
-    if (isset($_POST['admin_redeem_submit'])) {
-    $redeemCodeAdmin = $_POST['admin_redeem_code'];
-          $customerIdAdmin = $_POST['customer_id'];
-
-          // Kiểm tra mã mua hàng đã được sử dụng chưa
-          $sqlCheckRedeemAdmin = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCodeAdmin'";
-          $resultCheckRedeemAdmin = $conn->query($sqlCheckRedeemAdmin);
-
-          if ($resultCheckRedeemAdmin->num_rows == 0) {
-              // Thêm mã mua hàng vào CSDL
-              $sqlInsertRedeemAdmin = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerIdAdmin, '$redeemCodeAdmin')";
-              if ($conn->query($sqlInsertRedeemAdmin) === TRUE) {
-                  // Tăng quay_count lên 1
-                  $sqlUpdateQuayCountAdmin = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerIdAdmin";
-                  $conn->query($sqlUpdateQuayCountAdmin);
-
-                  // Nếu power_table_hidden = 1 thì cập nhật thành 0
-                  $sqlUpdatePowerTableAdmin = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerIdAdmin AND power_table_hidden = 1";
-                  $conn->query($sqlUpdatePowerTableAdmin);
-
-                  $_SESSION['admin_message'] = "Cập nhật mã mua hàng thành công cho khách hàng có ID $customerIdAdmin.";
-              } else {
-                  $_SESSION['admin_error'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
-              }
-          } else {
-              $_SESSION['admin_error'] = "Mã mua hàng đã được sử dụng.";
-          }
-
-          header("Location: ./index.php");
-          exit;
-      }
 
 
     // Ở phần nội dung trang:
@@ -149,17 +180,24 @@
     <div class="container mt-5">
         <?php
         if(isset($_SESSION['success_message'])) {
-            echo '<div class="alert alert-success">' . $_SESSION['success_message'] . '</div>';
+            echo '<div class="alert alert-success text-center">' . $_SESSION['success_message'] . '</div>';
             unset($_SESSION['success_message']); // Xóa thông điệp sau khi hiển thị
         }
 
         if(isset($_SESSION['error_message'])) {
-            echo '<div class="alert alert-danger">' . $_SESSION['error_message'] . '</div>';
+            echo '<div class="alert alert-danger text-center">' . $_SESSION['error_message'] . '</div>';
             unset($_SESSION['error_message']); // Xóa thông điệp sau khi hiển thị
         }
         ?>
         <?php if (!$loggedin) { ?>
             <div class="login-form">
+                <?php
+                  if (isset($_SESSION['login_error'])) {
+                      echo '<div class="alert alert-danger text-center">' . $_SESSION['login_error'] . '</div>';
+                      // Xóa thông báo sau khi hiển thị
+                      unset($_SESSION['login_error']);
+                  }
+                 ?>
                 <h1>Đăng nhập</h1>
                 <form method="post" action="">
                     <div class="form-group">
@@ -175,10 +213,105 @@
                     </div>
                 </form>
             </div>
+            <div class="container vip-info mt-5">
+                <h1>Đăng ký</h1>
+                <form method="post" action="">
+                      <div class="form-group">
+                          <label for="fullname">Tên đầy đủ:</label>
+                          <input type="text" id="fullname" name="fullname" class="form-control" required>
+                      </div>
+
+                      <div class="form-group">
+                          <label for="phone">Số điện thoại:</label>
+                          <input type="text" id="phone" name="phone" class="form-control" required>
+                      </div>
+                    
+                      <div class="form-group">
+                         <label for="password">Mật khẩu:</label>
+                         <input type="password" id="password" name="password" class="form-control" required>
+                      </div>
+
+                      <div class="form-group">
+                          <label for="level">Cấp độ:</label>
+                          <select id="level" name="level" class="form-control" readonly required>
+                              <option value="Vip1" selected>Vip1</option>
+                          </select>
+                      </div>
+
+                      <div class="form-group">
+                          <label for="points">Điểm:</label>
+                          <input type="number" id="points" name="points" class="form-control" value="0" readonly required>
+                      </div>
+                  
+                      <button type="submit" name="create_account" class="btn btn-primary">Tạo tài khoản</button>
+                  
+                        <div style="margin-top: 10px;" class="g-recaptcha" data-sitekey="6LeE-A8oAAAAAN2f18KJ8JP9kaIan9v14O4SVtq2"></div>
+                  </form>
+                </div>
+                <div class="text-center my-3">
+                    <button id="showLoginForm" class="btn btn-info ml-2">Đăng nhập</button>
+                    <button id="showRegisterForm" class="btn btn-success mr-2">Đăng ký</button>
+                </div>
+                <?php
+                      // Xử lý dữ liệu khi người dùng gửi thông tin
+                          if (isset($_POST['create_account'])) {
+                              $fullname = $_POST['fullname'];
+                              $phone = $_POST['phone'];
+                              $level = $_POST['level'];
+                              $points = $_POST['points'];
+                              $password = md5($_POST['password']);  // Mã hóa mật khẩu trước khi lưu
+
+                              // Kiểm tra số điện thoại đã tồn tại trong CSDL
+                              $sql_check_phone = "SELECT phone FROM customers WHERE phone = '$phone'";
+                              $result = $conn->query($sql_check_phone);
+
+                              if ($result->num_rows > 0) {
+                                  // Số điện thoại đã tồn tại
+                                  echo "<script>alert('Tài khoản với số điện thoại này đã tồn tại!');</script>";
+                              } else {
+                                  // Tiến hành tạo tài khoản
+                                  $sql_insert = "INSERT INTO customers (fullname, phone, level, points, password) VALUES ('$fullname', '$phone', '$level', $points, '$password')";
+
+                                  if ($conn->query($sql_insert) === TRUE) {
+                                      echo "Tài khoản mới đã được tạo!";
+                                  } else {
+                                      echo "Lỗi: " . $sql_insert . "<br>" . $conn->error;
+                                  }
+                               }
+                            }
+                      ?>
+                <script>
+                  $(document).ready(function() {
+                        // Ẩn form Đăng ký và nút Đăng nhập khi mới vào trang
+                        $(".vip-info").hide();
+                        $("#showLoginForm").hide();
+
+                        // Sự kiện click cho nút "Đăng ký"
+                        $("#showRegisterForm").click(function() {
+                            $(".login-form").hide();
+                            $(".vip-info").show();
+                            $(this).hide();
+                            $("#showLoginForm").show();
+                        });
+
+                        // Sự kiện click cho nút "Đăng nhập"
+                        $("#showLoginForm").click(function() {
+                            $(".vip-info").hide();
+                            $(".login-form").show();
+                            $(this).hide();
+                            $("#showRegisterForm").show();
+                        });
+                    });
+              </script>
         <?php } else { ?>
             <div class="vip-info">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <div class="text-center">
+                        <button id="changePasswordBtn" onclick="showChangePasswordForm()" class="btn btn-warning">Đổi mật khẩu</button>
+                        <button id="redeemBtn" onclick="showRedeemForm()" class="btn btn-primary" style="display: none;">Mã mua hàng</button>
+                      </div>
+                    </div>
                   <div class="redeem-form">
-                      <h2>Nhập mã mua hàng</h2>
                       <form method="post" action="">
                           <div class="form-group">
                               <label for="redeem_code">Mã mua hàng:</label>
@@ -187,13 +320,88 @@
                           <button type="submit" name="redeem_submit" class="btn btn-primary">Nhập mã</button>
                       </form>
                   </div>
+              
+                    <div class="change-password-form mt-5" style="display:none;">
+                      <form action="" method="post" class="mt-5 w-50 mx-auto">
+                          <div class="form-group">
+                              <label for="current_password">Nhập mật khẩu cũ:</label>
+                              <input type="password" class="form-control" id="current_password" name="current_password">
+                          </div>
+                          <div class="form-group">
+                              <label for="new_password">Nhập mật khẩu mới:</label>
+                              <input type="password" class="form-control" id="new_password" name="new_password">
+                          </div>
+                          <div class="form-group">
+                              <label for="confirm_new_password">Xác nhận mật khẩu mới:</label>
+                              <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password">
+                          </div>
+                          <button type="submit" name="change_password" class="btn btn-warning">Đổi mật khẩu</button>
+                      </form>
+                      <?php 
+                        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] && isset($_POST['change_password'])) {
+                            $current_password = md5($_POST['current_password']); 
+                            $new_password = md5($_POST['new_password']);
+                            $confirm_new_password = md5($_POST['confirm_new_password']);
+
+                            $messageType = "";
+                            $messageContent = "";
+
+                            if ($user_info['password'] === $current_password) {
+                                if ($new_password === $confirm_new_password) {
+                                    $stmt = $conn->prepare("UPDATE customers SET password = ? WHERE id = ?");
+                                    $stmt->bind_param("si", $new_password, $user_info['id']);
+                                    if ($stmt->execute()) {
+                                        $messageType = "success";
+                                        $messageContent = "Đổi mật khẩu thành công!";
+                                        $_SESSION['user_info']['password'] = $new_password;
+                                    } else {
+                                        $messageType = "danger";
+                                        $messageContent = "Có lỗi xảy ra. Vui lòng thử lại.";
+                                    }
+                                    $stmt->close();
+                                } else {
+                                    $messageType = "danger";
+                                    $messageContent = "Mật khẩu mới và mật khẩu xác nhận không khớp.";
+                                }
+                            } else {
+                                $messageType = "danger";
+                                $messageContent = "Mật khẩu cũ không chính xác.";
+                            }
+                        }
+                        if (!empty($messageContent)) {
+                            echo "<script>alert('{$messageContent}');</script>";
+                        }
+                      ?>
+                  </div>
+                    <script>
+                        function showChangePasswordForm() {
+                            // Ẩn form mã mua hàng và hiển thị form đổi mật khẩu
+                            document.querySelector('.redeem-form').style.display = 'none';
+                            document.querySelector('.change-password-form').style.display = 'block';
+
+                            // Ẩn nút Đổi mật khẩu và hiển thị nút Mã mua hàng
+                            document.getElementById('changePasswordBtn').style.display = 'none';
+                            document.getElementById('redeemBtn').style.display = 'block';
+                        }
+
+                        function showRedeemForm() {
+                            // Hiển thị form mã mua hàng và ẩn form đổi mật khẩu
+                            document.querySelector('.redeem-form').style.display = 'block';
+                            document.querySelector('.change-password-form').style.display = 'none';
+
+                            // Hiển thị nút Đổi mật khẩu và ẩn nút Mã mua hàng
+                            document.getElementById('changePasswordBtn').style.display = 'block';
+                            document.getElementById('redeemBtn').style.display = 'none';
+                        }
+                    </script>
+              
                   <h1>Thông tin khách VIP</h1>
                   <table>
                       <tr>
                           <th>Full Name</th>
                           <th>Phone</th>
                           <th>Level</th>
-                          <th>Points</th>
+                          <th>Điểm</th>
                           <th>Kết quả quay thưởng</th>
                           <th>Lượt quay còn lại</th>
                       </tr>
@@ -224,7 +432,7 @@
                           echo "</td>";
 
                           // Hiển thị giá trị quay_count
-                          echo "<td>" . $user_info['quay_count'] . " lượt</td>";
+                          echo "<td id='remaining_spins'>" . $user_info['quay_count'] . " lượt</td>";
 
                           echo "</tr>";
                       }
@@ -232,7 +440,8 @@
                   </table>
                   <a href="?logout=true" class="btn btn-danger">Đăng xuất</a>
               </div>
-            <?php if ($user_info['level'] >= 'Vip2' && $user_info['level'] <= 'Vip5') { ?>
+            <?php if ($loggedin && $user_info['power_table_hidden'] == 0 && $user_info['level'] >= 'Vip1' && $user_info['level'] <= 'Vip5') { ?>
+         <!-- Phần hiển thị form quay thưởng -->
                 <div class="congratulations">
                     <!-- Lời chúc mừng đến khách hàng -->
                     <p>Chào mừng <strong><?php echo $user_info['fullname']; ?></strong> đến với thế giới của những ưu đãi đặc biệt!</p>
@@ -272,181 +481,14 @@
                 </td>
             </tr>
         </table>
-          <script>
-             // Create new wheel object specifying the parameters at creation time.
-            
-            let theWheel = new Winwheel({
-                'outerRadius'     : 212,        // Set outer radius so wheel fits inside the background.
-                'innerRadius'     : 75,         // Make wheel hollow so segments don't go all way to center.
-                'textFontSize'    : 24,         // Set default font size for the segments.
-                'textOrientation' : 'vertical', // Make text vertial so goes down from the outside of wheel.
-                'textAlignment'   : 'outer',    // Align text to outside of wheel.
-                'numSegments'     : 12,         // Specify number of segments.
-                'segments'        :             // Define segments including colour and text.
-                [                               // font size and test colour overridden on backrupt segments.
-                   {'fillStyle' : '#5dcce9', 'text' : 'WINK', 'textFontSize' : 12},
-                   {'fillStyle' : '#5dcce9', 'text' : 'SUNGLASSES', 'textFontSize' : 12},
-                   {'fillStyle' : '#fed041', 'text' : 'KISSING', 'textFontSize' : 12},
-                   {'fillStyle' : '#fa777d', 'text' : 'RELAXED', 'textFontSize' : 12},
-                   {'fillStyle' : '#fa777d', 'text' : 'FLUSHED', 'textFontSize' : 12},
-                   {'fillStyle' : '#5dcce9', 'text' : 'GRIN', 'textFontSize' : 12},
-                   {'fillStyle' : '#5dcce9', 'text' : 'NEUTRAL', 'textFontSize' : 12},
-                   {'fillStyle' : '#000000', 'text' : 'Chúc may mắn', 'textFontSize' : 12, 'textFillStyle' : '#ffffff'},
-                   {'fillStyle' : '#fed041', 'text' : 'ANGRY', 'textFontSize' : 12},
-                   {'fillStyle' : '#fa777d', 'text' : 'HEART EYES', 'textFontSize' : 12},
-                   {'fillStyle' : '#fa777d', 'text' : 'JOY', 'textFontSize' : 12},
-                   {'fillStyle' : '#ffffff', 'text' : 'Mất lượt', 'textFontSize' : 12}
-                ],
-                'animation' :           // Specify the animation to use.
-                {
-                    'type'     : 'spinToStop',
-                    'duration' : 10,    // Duration in seconds.
-                    'spins'    : 3,     // Default number of complete spins.
-                    'callbackFinished' : alertPrize,
-                    'callbackSound'    : playSound,   // Function to call when the tick sound is to be triggered.
-                    'soundTrigger'     : 'pin'        // Specify pins are to trigger the sound, the other option is 'segment'.
-                },
-                'pins' :                // Turn pins on.
-                {
-                    'number'     : 24,
-                    'fillStyle'  : 'silver',
-                    'outerRadius': 4,
-                }
-            });
-
-            // Loads the tick audio sound in to an audio object.
-            let audio = new Audio('https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/tick.mp3');
-
-            // This function is called when the sound is to be played.
-            function playSound()
-            {
-                // Stop and rewind the sound if it already happens to be playing.
-                audio.pause();
-                audio.currentTime = 0;
-
-                // Play the sound.
-                audio.play();
-            }
-
-            // Vars used by the code in this page to do power controls.
-            let wheelPower    = 0;
-            let wheelSpinning = false;
-
-            // -------------------------------------------------------
-            // Function to handle the onClick on the power buttons.
-            // -------------------------------------------------------
-            function powerSelected(powerLevel)
-            {
-                // Ensure that power can't be changed while wheel is spinning.
-                if (wheelSpinning == false) {
-                    // Reset all to grey incase this is not the first time the user has selected the power.
-                    document.getElementById('pw1').className = "";
-                    document.getElementById('pw2').className = "";
-                    document.getElementById('pw3').className = "";
-
-                    // Now light up all cells below-and-including the one selected by changing the class.
-                    if (powerLevel >= 1) {
-                        document.getElementById('pw1').className = "pw1";
-                    }
-
-                    if (powerLevel >= 2) {
-                        document.getElementById('pw2').className = "pw2";
-                    }
-
-                    if (powerLevel >= 3) {
-                        document.getElementById('pw3').className = "pw3";
-                    }
-
-                    // Set wheelPower var used when spin button is clicked.
-                    wheelPower = powerLevel;
-
-                    // Light up the spin button by changing it's source image and adding a clickable class to it.
-                    document.getElementById('spin_button').src = "https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/spin_on.png";
-                    document.getElementById('spin_button').className = "clickable";
-                }
-            }
-
-            // -------------------------------------------------------
-            // Click handler for spin button.
-            // -------------------------------------------------------
-             function startSpin()
-            {
-                // Ensure that spinning can't be clicked again while already running.
-                if (wheelSpinning == false) {
-                    // Based on the power level selected adjust the number of spins for the wheel, the more times is has
-                    // to rotate with the duration of the animation the quicker the wheel spins.
-                    if (wheelPower == 1) {
-                        theWheel.animation.spins = 3;
-                    } else if (wheelPower == 2) {
-                        theWheel.animation.spins = 6;
-                    } else if (wheelPower == 3) {
-                        theWheel.animation.spins = 10;
-                    }
-
-                    // Disable the spin button so can't click again while wheel is spinning.
-                    document.getElementById('spin_button').src       = "https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/spin_off.png";
-                    document.getElementById('spin_button').className = "";
-
-                    // Begin the spin animation by calling startAnimation on the wheel object.
-                    theWheel.startAnimation();
-
-                    // Set to true so that power can't be changed and spin button re-enabled during
-                    // the current animation. The user will have to reset before spinning again.
-                    wheelSpinning = true;
-                    
-                }
-            }
-              // -------------------------------------------------------
-            // Function for reset button.
-            // -------------------------------------------------------
-            function resetWheel()
-            {
-                theWheel.stopAnimation(false);  // Stop the animation, false as param so does not call callback function.
-                theWheel.rotationAngle = 0;     // Re-set the wheel angle to 0 degrees.
-                theWheel.draw();                // Call draw to render changes to the wheel.
-
-                document.getElementById('pw1').className = "";  // Remove all colours from the power level indicators.
-                document.getElementById('pw2').className = "";
-                document.getElementById('pw3').className = "";
-
-                wheelSpinning = false;          // Reset to false to power buttons and spin can be clicked again.
-            }
-
-            // -------------------------------------------------------
-            // Called when the spin animation has finished by the callback feature of the wheel because I specified callback in the parameters.
-             // -------------------------------------------------------
-            function alertPrize(indicatedSegment) {
-                    let prizeResult = indicatedSegment.text;
-                    let deductSpin = false;  // Khởi tạo biến deductSpin
-
-                    if (indicatedSegment.text == 'Mất lượt') {
-                        alert('Xin lỗi bạn đã bị mất lượt.');
-                        deductSpin = true; // Đặt deductSpin thành true để trừ lượt quay
-                    } else if (indicatedSegment.text == 'Chúc may mắn') {
-                        alert('Chúc bạn may mắn lần sau.');
-                        deductSpin = true; // Đặt deductSpin thành true để trừ lượt quay
-                    } else {
-                        alert("Chúc mừng bạn đã được giảm giá " + prizeResult);
-                    }
-
-                    // Gửi yêu cầu AJAX để cập nhật kết quả quay thưởng và/hoặc trừ lượt quay vào cơ sở dữ liệu
-                    $.ajax({
-                        type: "POST",
-                        url: "./update_prize.php",
-                        data: {
-                            prizeResult: prizeResult,
-                            deductSpin: deductSpin  // Truyền biến deductSpin
-                        },
-                        success: function(response) {
-                            alert(response);
-                            location.reload();
-                        }
-                    });
-                }
-          </script>
+            <script src="./quay_function.js"></script>                
           <!--code quay thưởng -->
         </div>
-                  
+            <?php } elseif($loggedin && $user_info['power_table_hidden'] == 1) { ?>
+                    <!-- Thông báo cho người dùng rằng họ chưa đủ điều kiện để quay thưởng -->
+                    <div class="not-qualified">
+                        <p>Bạn chưa đủ điều kiện để quay thưởng. Vui lòng nhập mã mua hàng và đảm bảo bạn còn lượt quay.</p>
+                    </div>
             <?php } else { ?>
                 <div class="not-qualified">
                     <!-- Thông báo cho khách hàng không phải Vip2 đến Vip5 -->
@@ -566,10 +608,10 @@
                       <th style="width: 10% !important;">Full Name</th>
                       <th style="width: 13% !important;">Phone</th>
                       <th style="width: 7% !important;">Level</th>
-                      <th style="width: 7% !important;">Points</th>
-                      <th style="width: 33% !important;">Nhập mã mua hàng</th>
+                      <th style="width: 7% !important;">Điểm</th>
+                      <th style="width: 30% !important;">Nhập mã mua hàng</th>
                       <th style="width: 20% !important;">Kết quả</th>
-                      <th style="width: 10% !important;">Đã nhận</th>
+                      <th style="width: 13% !important;">Đã nhận</th>
                   </tr>
                   <?php
                   // Xử lý tìm kiếm khách hàng VIP theo số điện thoại
@@ -674,6 +716,7 @@
 
     <?php
     $conn->close();
+    $wpConn->close();
     ?>
     <script>
         window.onload = function() {

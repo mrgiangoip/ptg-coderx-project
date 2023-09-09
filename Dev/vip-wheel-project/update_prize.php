@@ -29,7 +29,7 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
         $quay_count = $user_info['quay_count'];
 
         if ($quay_count == 0) {
-            echo "Bạn đã quay đủ số  lượt. Xin hẹn gặp lại lần sau.";
+            echo "Bạn đã quay đủ số lượt. Xin hẹn gặp lại lần sau.";
         } else {
             // Tiến hành quay thưởng và cập nhật số lần quay
             $quay_count--;
@@ -41,16 +41,19 @@ if (isset($_SESSION['loggedin']) && $_SESSION['loggedin']) {
                 // Cập nhật số lần quay
                 $sqlUpdateQuayCount = "UPDATE customers SET quay_count = $quay_count WHERE id = $customerId";
                 if ($conn->query($sqlUpdateQuayCount) === TRUE) {
+                    // Cập nhật biến session với giá trị quay_count mới
+                    $_SESSION['user_info']['quay_count'] = $quay_count;
+
                     if ($quay_count == 0) {
-                        // Nếu đã quay đủ 3 lần, cập nhật cột "power_table_hidden" thành 1
+                        // Nếu đã quay đủ lần, cập nhật cột "power_table_hidden" thành 1
                         $sqlUpdatePower = "UPDATE customers SET power_table_hidden = 1 WHERE id = $customerId";
                         if ($conn->query($sqlUpdatePower) === TRUE) {
-                            echo "Kết quả quay thưởng đã được cập nhật thành công. Bạn đã hoàn thành đủ số lượt quay.";
+                            echo "Kết quả quay thưởng đã được cập nhật thành công. Bạn đã hoàn thành đủ số lượt quay."; // Trả về số lượt quay còn lại sau khi đã cập nhật
                         } else {
                             echo "Lỗi: " . $conn->error;
                         }
                     } else {
-                        echo "Kết quả quay thưởng đã được cập nhật thành công.";
+                        echo $quay_count; // Trả về số lượt quay còn lại sau khi đã cập nhật
                     }
                 } else {
                     echo "Lỗi: " . $conn->error;

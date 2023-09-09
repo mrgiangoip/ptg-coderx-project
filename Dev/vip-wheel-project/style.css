@@ -7,6 +7,7 @@ body {
 
           .container {
               max-width: 1200px;
+              width: 1200px;
               margin: 0 auto;
               padding: 20px;
               box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -91,6 +92,7 @@ body {
           }
         .vip-info {
             max-width: 1200px;
+            width: 1200px;
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ccc;
@@ -125,6 +127,7 @@ body {
         }
         .congratulations {
             max-width: 1200px;
+            width: 1200px;
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ccc;
@@ -138,6 +141,7 @@ body {
         }
         .not-qualified {
             max-width: 1200px;
+            width: 1200px;
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ccc;
@@ -150,7 +154,7 @@ body {
         }
         /* CSS cho phần quay thưởng */
         .luckywheel {
-            width: 100%;
+            width: 100% !important;
             max-width: 1200px;
             margin: 0 auto;
             background-color: #fff;
@@ -188,4 +192,48 @@ body {
         .centered-content td {
             text-align: center;
             vertical-align: middle;
+        }
+        /* Responsive code starts here */
+
+      /* Màn hình máy tính bảng */
+        @media (max-width: 1024px) {
+            /* Cho những container có chiều rộng cố định 1200px trở thành chiều rộng 100% trên màn hình nhỏ hơn */
+            .container, .vip-info, .congratulations, .not-qualified, .luckywheel {
+                width: 100%;
+                padding: 10px;
+            }
+            .login-form {
+                max-width: 90%; 
+            }
+        }
+
+        /* Màn hình di động */
+        @media (max-width: 768px) {
+            .container, .vip-info, .congratulations, .not-qualified, .luckywheel {
+                padding: 15px;
+            }
+            th, td {
+                padding: 6px; /* Giảm padding cho th và td */
+            }
+            .login-form input[type="text"],
+            .login-form input[type="password"],
+            .login-form button[type="submit"] {
+                margin-bottom: 5px; /* Giảm margin cho form đăng nhập */
+            }
+            .power_controls img {
+                width: 60px; /* Giảm kích thước ảnh trong .power_controls */
+            }
+        }
+
+        /* Màn hình di động kích thước nhỏ hơn */
+        @media (max-width: 480px) {
+            .login-form h1, .vip-info h1 {
+                font-size: 18px; /* Giảm kích thước font cho h1 */
+            }
+            .congratulations p, .not-qualified p {
+                font-size: 16px; /* Giảm kích thước font cho p */
+            }
+            .power_controls img {
+                width: 50px; /* Giảm kích thước ảnh trong .power_controls cho màn hình nhỏ hơn */
+            }
         }
