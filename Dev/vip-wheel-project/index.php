@@ -8,7 +8,11 @@
         <link rel="stylesheet" href="./main.css" type="text/css" />
         <script type="text/javascript" src="https://gomhang.vn/wp-content/plugins/vip-wheel-plugin/Winwheel.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  		<!-- SweetAlert2 CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <!-- SweetAlert2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <body>
     <?php
     session_start();
@@ -78,7 +82,7 @@
         $_SESSION['user_info'] = $user_info;
     }
 
-        // Handle redeem code for user
+		// Handle redeem code for user
       if ($loggedin && isset($_POST['redeem_submit'])) {
           $redeemCode = $_POST['redeem_code'];
           $customerId = $user_info['id'];
@@ -174,7 +178,6 @@
             exit;
         }
 
-
     // Ở phần nội dung trang:
     ?>
     <div class="container mt-5">
@@ -191,7 +194,7 @@
         ?>
         <?php if (!$loggedin) { ?>
             <div class="login-form">
-                <?php
+              	<?php
                   if (isset($_SESSION['login_error'])) {
                       echo '<div class="alert alert-danger text-center">' . $_SESSION['login_error'] . '</div>';
                       // Xóa thông báo sau khi hiển thị
@@ -213,9 +216,9 @@
                     </div>
                 </form>
             </div>
-            <div class="container vip-info mt-5">
-                <h1>Đăng ký</h1>
-                <form method="post" action="">
+      		<div class="container vip-info mt-5">
+    			<h1>Đăng ký</h1>
+              	<form method="post" action="">
                       <div class="form-group">
                           <label for="fullname">Tên đầy đủ:</label>
                           <input type="text" id="fullname" name="fullname" class="form-control" required>
@@ -245,14 +248,14 @@
                   
                       <button type="submit" name="create_account" class="btn btn-primary">Tạo tài khoản</button>
                   
-                        <div style="margin-top: 10px;" class="g-recaptcha" data-sitekey="6LeE-A8oAAAAAN2f18KJ8JP9kaIan9v14O4SVtq2"></div>
+                  		<div style="margin-top: 10px;" class="g-recaptcha" data-sitekey="6LeE-A8oAAAAAN2f18KJ8JP9kaIan9v14O4SVtq2"></div>
                   </form>
-                </div>
-                <div class="text-center my-3">
+				</div>
+      			<div class="text-center my-3">
                     <button id="showLoginForm" class="btn btn-info ml-2">Đăng nhập</button>
-                    <button id="showRegisterForm" class="btn btn-success mr-2">Đăng ký</button>
+                  	<button id="showRegisterForm" class="btn btn-success mr-2">Đăng ký</button>
                 </div>
-                <?php
+      			<?php
                       // Xử lý dữ liệu khi người dùng gửi thông tin
                           if (isset($_POST['create_account'])) {
                               $fullname = $_POST['fullname'];
@@ -280,7 +283,7 @@
                                }
                             }
                       ?>
-                <script>
+      			<script>
                   $(document).ready(function() {
                         // Ẩn form Đăng ký và nút Đăng nhập khi mới vào trang
                         $(".vip-info").hide();
@@ -305,12 +308,12 @@
               </script>
         <?php } else { ?>
             <div class="vip-info">
-                    <div class="d-flex align-items-center justify-content-center">
+              		<div class="d-flex align-items-center justify-content-center">
                       <div class="text-center">
-                        <button id="changePasswordBtn" onclick="showChangePasswordForm()" class="btn btn-warning">Đổi mật khẩu</button>
-                        <button id="redeemBtn" onclick="showRedeemForm()" class="btn btn-primary" style="display: none;">Mã mua hàng</button>
+                      	<button id="changePasswordBtn" onclick="showChangePasswordForm()" class="btn btn-warning">Đổi mật khẩu</button>
+    					<button id="redeemBtn" onclick="showRedeemForm()" class="btn btn-primary" style="display: none;">Mã mua hàng</button>
                       </div>
-                    </div>
+              		</div>
                   <div class="redeem-form">
                       <form method="post" action="">
                           <div class="form-group">
@@ -321,7 +324,7 @@
                       </form>
                   </div>
               
-                    <div class="change-password-form mt-5" style="display:none;">
+              		<div class="change-password-form mt-5" style="display:none;">
                       <form action="" method="post" class="mt-5 w-50 mx-auto">
                           <div class="form-group">
                               <label for="current_password">Nhập mật khẩu cũ:</label>
@@ -338,7 +341,7 @@
                           <button type="submit" name="change_password" class="btn btn-warning">Đổi mật khẩu</button>
                       </form>
                       <?php 
-                        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] && isset($_POST['change_password'])) {
+                      	if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] && isset($_POST['change_password'])) {
                             $current_password = md5($_POST['current_password']); 
                             $new_password = md5($_POST['new_password']);
                             $confirm_new_password = md5($_POST['confirm_new_password']);
@@ -368,12 +371,12 @@
                                 $messageContent = "Mật khẩu cũ không chính xác.";
                             }
                         }
-                        if (!empty($messageContent)) {
+          				if (!empty($messageContent)) {
                             echo "<script>alert('{$messageContent}');</script>";
                         }
                       ?>
                   </div>
-                    <script>
+              		<script>
                         function showChangePasswordForm() {
                             // Ẩn form mã mua hàng và hiển thị form đổi mật khẩu
                             document.querySelector('.redeem-form').style.display = 'none';
@@ -441,7 +444,7 @@
                   <a href="?logout=true" class="btn btn-danger">Đăng xuất</a>
               </div>
             <?php if ($loggedin && $user_info['power_table_hidden'] == 0 && $user_info['level'] >= 'Vip1' && $user_info['level'] <= 'Vip5') { ?>
-         <!-- Phần hiển thị form quay thưởng -->
+   		 <!-- Phần hiển thị form quay thưởng -->
                 <div class="congratulations">
                     <!-- Lời chúc mừng đến khách hàng -->
                     <p>Chào mừng <strong><?php echo $user_info['fullname']; ?></strong> đến với thế giới của những ưu đãi đặc biệt!</p>
@@ -481,13 +484,13 @@
                 </td>
             </tr>
         </table>
-            <script src="./quay_function.js"></script>                
+        	<script src="./quay_function.js"></script>                
           <!--code quay thưởng -->
         </div>
             <?php } elseif($loggedin && $user_info['power_table_hidden'] == 1) { ?>
                     <!-- Thông báo cho người dùng rằng họ chưa đủ điều kiện để quay thưởng -->
-                    <div class="not-qualified">
-                        <p>Bạn chưa đủ điều kiện để quay thưởng. Vui lòng nhập mã mua hàng và đảm bảo bạn còn lượt quay.</p>
+                  	<div class="not-qualified">
+                    	<p>Bạn chưa đủ điều kiện để quay thưởng. Vui lòng nhập mã mua hàng và đảm bảo bạn còn lượt quay.</p>
                     </div>
             <?php } else { ?>
                 <div class="not-qualified">
@@ -498,7 +501,7 @@
             <?php } ?>
 
 
-           <?php if ($user_info['level'] == 'admin') { ?>
+           <?php if ($user_info['level'] == 'admin' || $user_info['level'] == 'admin1') { ?>
             <div class="container vip-info  mt-5">
               
                <form method="post" action="">
@@ -519,19 +522,22 @@
 
                       <div class="form-group">
                           <label for="level">Cấp độ:</label>
-                          <select id="level" name="level" class="form-control" required>
-                              <option value="admin">Admin</option>
-                              <option value="Vip1">Vip1</option>
-                              <option value="Vip2">Vip2</option>
-                              <option value="Vip3">Vip3</option>
-                              <option value="Vip4">Vip4</option>
-                              <option value="Vip5">Vip5</option>
+                          <select id="level" name="level" class="form-control" required <?php echo ($user_info['level'] == 'admin1') ? 'disabled' : ''; ?>>
+                              <?php if ($user_info['level'] == 'admin') { ?>
+                                  <option value="admin">Admin</option>
+                                  <option value="admin1">Admin1</option>
+                              <?php } ?>
+                              <option value="Vip1" selected>Vip1</option>
                           </select>
+                          <?php if ($user_info['level'] == 'admin1') { ?>
+                              <!-- Thêm trường ẩn để gửi giá trị mặc định là 'Vip1' khi select box bị disabled -->
+                              <input type="hidden" name="level" value="Vip1">
+                          <?php } ?>
                       </div>
 
                       <div class="form-group">
                           <label for="points">Điểm:</label>
-                          <input type="number" id="points" name="points" class="form-control" required>
+                          <input type="number" id="points" name="points" class="form-control" value="0" readonly required>
                       </div>
 
                       <button type="submit" name="create_account" class="btn btn-primary">Duyệt</button>
@@ -573,6 +579,7 @@
                   <label for="vip_filter">Lọc theo cấp độ VIP:</label>
                   <select id="vip_filter" name="vip_filter" onchange="submitFilter()">
                       <option value="all" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'all') echo 'selected'; ?>>Tất cả</option>
+                      <option value="admin1" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'admin1') echo 'selected'; ?>>admin1</option>
                       <option value="Vip1" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'Vip1') echo 'selected'; ?>>Vip1</option>
                       <option value="Vip2" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'Vip2') echo 'selected'; ?>>Vip2</option>
                       <option value="Vip3" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'Vip3') echo 'selected'; ?>>Vip3</option>
@@ -600,20 +607,27 @@
                   unset($_SESSION['admin_error']); // Xóa thông báo lỗi sau khi đã hiển thị
               }
               ?>
-            <div class="vip-info">
+             <div class="vip-info">
               <h2>Danh sách khách VIP từ Vip1 đến Vip5</h2>
-              <table cellpadding="0" cellspacing="0" border="0" class="luckywheel centered-content">
-                  <!-- ... (Table headers) ... -->
-                  <tr>
-                      <th style="width: 10% !important;">Full Name</th>
-                      <th style="width: 13% !important;">Phone</th>
-                      <th style="width: 7% !important;">Level</th>
-                      <th style="width: 7% !important;">Điểm</th>
-                      <th style="width: 30% !important;">Nhập mã mua hàng</th>
-                      <th style="width: 20% !important;">Kết quả</th>
-                      <th style="width: 13% !important;">Đã nhận</th>
-                  </tr>
-                  <?php
+
+              <?php
+              if(isset($user_info['level'])) {
+                  if($user_info['level'] == 'admin' || 
+                    ($user_info['level'] == 'admin1' && isset($_POST['phone_search']) && !empty($_POST['phone_search']))) {
+                      ?>
+                      <table cellpadding="0" cellspacing="0" border="0" class="luckywheel centered-content">
+                          <!-- ... (Table headers) ... -->
+                          <tr>
+                              <th style="width: 10% !important;">Full Name</th>
+                              <th style="width: 13% !important;">Phone</th>
+                              <th style="width: 7% !important;">Level</th>
+                              <th style="width: 7% !important;">Điểm</th>
+                              <th style="width: 30% !important;">Nhập mã mua hàng</th>
+                              <th style="width: 20% !important;">Kết quả</th>
+                              <th style="width: 13% !important;">Đã nhận</th>
+                          </tr>
+
+                          <?php
                   // Xử lý tìm kiếm khách hàng VIP theo số điện thoại
                   if (isset($_POST['phone_search']) && !empty($_POST['phone_search'])) {
                       $phone_search = $_POST['phone_search'];
@@ -634,7 +648,7 @@
                   $offset = ($current_page - 1) * $items_per_page;
 
                   // Fetch and display VIP customers based on filter and phone search
-                  $sql = "SELECT * FROM customers WHERE level LIKE 'Vip%' AND level <= 'Vip5'$filter_sql LIMIT $offset, $items_per_page";
+                  $sql = "SELECT * FROM customers WHERE (level LIKE 'Vip%' OR level = 'admin1') AND level <= 'Vip5'$filter_sql LIMIT $offset, $items_per_page";
                   $result = $conn->query($sql);
 
                   if ($result->num_rows > 0) {
@@ -644,8 +658,8 @@
                         echo "<td>" . $row["phone"] . "</td>";
                         echo "<td>" . $row["level"] . "</td>";
                         echo "<td>" . $row["points"] . "</td>";
-                        echo "<td>
-                                <form method='post' action=''>
+                      	echo "<td>
+                        		<form method='post' action=''>
                                    <input type='hidden' name='customer_id' value='" . $row["id"] . "'>
                                    <input type='text' name='admin_redeem_code'>
                                    <input type='submit' class='btn btn-primary' name='admin_redeem_submit' value='Nhập mã'>
@@ -688,7 +702,15 @@
                   }
                   ?>
               </table>
-             </div>
+                      <?php
+                  } else {
+                      echo "Bạn không có quyền xem thông tin này.";
+                  }
+              } else {
+                  echo "Lỗi: Không thể xác định quyền của người dùng.";
+              }
+              ?>
+          </div>
     <!-- Pagination Links -->
     <?php
     $sql_count = "SELECT COUNT(*) AS total FROM customers WHERE level LIKE 'Vip%' AND level <= 'Vip5'$filter_sql";
@@ -741,6 +763,12 @@
               const prizeId = $(this).data('prize-id');
               const isReceived = $(this).is(':checked');
 
+              const userConfirm = confirm("Bạn có chắc chắn muốn thay đổi trạng thái của giải thưởng này không?");
+              if (!userConfirm) {
+                  $(this).prop('checked', !isReceived);
+                  return;
+              }
+
               if (isReceived) {
                   $(`#${prizeId}`).css('color', 'red');
               } else {
@@ -755,21 +783,44 @@
                       isReceived: isReceived ? 1 : 0
                   },
                   success: function(response) {
-                      // Remove old alert classes
                       $('#messageBox').removeClass('alert-success alert-danger');
-
-                      // Determine the class based on isReceived value
                       const alertClass = isReceived ? 'alert-success' : 'alert-danger';
-
                       $('#messageBox').addClass(`alert ${alertClass}`).text(response).show();
-
+                      
                       setTimeout(() => {
-                          $('#messageBox').fadeOut(); // Hide the message after 3 seconds
-                      }, 3000);
+                          $('#messageBox').fadeOut();
+                          location.reload(); // Tải lại trang tại đây
+                      }, 500);
                   }
               });
           });
       });
+	</script>
+	<script>
+    	// Ngăn chặn F12 (Công cụ phát triển)
+          document.onkeydown = function (e) {
+              if (e.keyCode == 123) {
+                  return false;
+              }
+              if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                  return false;
+              }
+              if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+                  return false;
+              }
+              if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                  return false;
+              }
+              if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                  return false;
+              }
+          };
+
+          // Ngăn chặn click chuột phải
+          document.oncontextmenu = function (e) {
+              e.preventDefault(); // Ngăn chặn menu chuột phải mặc định
+              return false;
+          }
     </script>
 </body>
 </html>
