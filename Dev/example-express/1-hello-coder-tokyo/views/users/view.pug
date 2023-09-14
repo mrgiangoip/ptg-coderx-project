@@ -1,10 +1,13 @@
-h1 View user
+extends ../layouts/common
 
-p
- b My name is: &nbsp;
- span= user.name
- 
- br
+block content
+	h1 View user
 
- b My ID is: &nbsp;
- span= user.id
+	p
+	 b My name is: &nbsp;
+	 span= user.name
+	 
+	 br
+
+	 b My ID is: &nbsp;
+	 span= user.id

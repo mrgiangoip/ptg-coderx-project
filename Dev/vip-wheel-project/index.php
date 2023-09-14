@@ -83,101 +83,108 @@
     }
 
         // Handle redeem code for user
-      if ($loggedin && isset($_POST['redeem_submit'])) {
-          $redeemCode = $_POST['redeem_code'];
-          $customerId = $user_info['id'];
+        if ($loggedin && isset($_POST['redeem_submit'])) {
+            $redeemCode = $_POST['redeem_code'];
+            $customerId = $user_info['id'];
 
-          // Kiểm tra xem mã mua hàng đã tồn tại trong bảng redeem_history và đã được người dùng này nhập chưa
-          $sqlCheckRedeemHistory = "SELECT redeem_code FROM redeem_history WHERE redeem_code = '$redeemCode' AND customer_id = $customerId";
-          $resultCheckRedeemHistory = $conn->query($sqlCheckRedeemHistory);
+            // Kiểm tra xem mã mua hàng đã tồn tại trong bảng redeem_history và đã được người dùng này nhập chưa
+            $sqlCheckRedeemHistory = "SELECT redeem_code FROM redeem_history WHERE redeem_code = '$redeemCode' AND customer_id = $customerId";
+            $resultCheckRedeemHistory = $conn->query($sqlCheckRedeemHistory);
 
-          if ($resultCheckRedeemHistory->num_rows > 0) {
-            $_SESSION['error_message'] = "Mã mua hàng đã tồn tại và bạn đã nhập rồi!";
-          } else {
-              // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup hay không
-              $sqlCheckOrder = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCode'";
-              $resultCheckOrder = $wpConn->query($sqlCheckOrder);
+            // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup
+            $sqlCheckOrderInWP = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCode'";
+            $resultCheckOrderInWP = $wpConn->query($sqlCheckOrderInWP);
 
-              if ($resultCheckOrder->num_rows > 0) {
-                  // Cập nhật mã mua hàng vào bảng redeem_history
-                  $sqlInsertRedeem = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerId, '$redeemCode')";
-                  if ($conn->query($sqlInsertRedeem) === TRUE) {
-                      // Cập nhật số lượt quay và power_table_hidden cho khách hàng
-                      $sqlUpdateQuayAndPowerTable = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerId";
-                      $conn->query($sqlUpdateQuayAndPowerTable);
+            // Kiểm tra xem mã mua hàng có tồn tại trong bảng orderids
+            $sqlCheckOrderInOrderIds = "SELECT order_id FROM orderids WHERE order_id = '$redeemCode'";
+            $resultCheckOrderInOrderIds = $conn->query($sqlCheckOrderInOrderIds);
 
-                      // Kiểm tra quay_count sau khi đã cập nhật và cập nhật power_table_hidden nếu cần thiết
-                      $sqlCheckQuayCount = "SELECT quay_count FROM customers WHERE id = $customerId";
-                      $resultCheckQuayCount = $conn->query($sqlCheckQuayCount);
-                      $rowQuayCount = $resultCheckQuayCount->fetch_assoc();
-                      if ($rowQuayCount['quay_count'] >= 1) {
-                          $sqlUpdatePowerTable = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerId";
-                          $conn->query($sqlUpdatePowerTable);
-                      }
-                      $_SESSION['success_message'] = "Nhập mã mua hàng thành công và bạn đã nhận được thêm 1 lượt quay!";
-                      $user_info['quay_count'] += 1;
-                      $_SESSION['user_info']['quay_count'] = $user_info['quay_count'];
-                      $user_info['power_table_hidden'] = 0;
-                  } else {
-                      $_SESSION['error_message'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
-                  }
-              } else {
-                  $_SESSION['error_message'] = "Mã mua hàng không hợp lệ.";
-              }
-          }
-      }
+            if ($resultCheckRedeemHistory->num_rows > 0) {
+                $_SESSION['error_message'] = "Mã mua hàng đã tồn tại và bạn đã nhập rồi!";
+            } elseif ($resultCheckOrderInWP->num_rows > 0 || $resultCheckOrderInOrderIds->num_rows > 0) {
+                // Mã mua hàng tồn tại trong wp_wc_order_product_lookup hoặc orderids, tiếp tục xử lý
+                // Cập nhật mã mua hàng vào bảng redeem_history
+                $sqlInsertRedeem = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerId, '$redeemCode')";
+                if ($conn->query($sqlInsertRedeem) === TRUE) {
+                    // Cập nhật số lượt quay và power_table_hidden cho khách hàng
+                    $sqlUpdateQuayAndPowerTable = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerId";
+                    $conn->query($sqlUpdateQuayAndPowerTable);
 
-      // Xử lý nhập mã mua hàng cho admin
-        if (isset($_POST['admin_redeem_submit'])) {
-            $redeemCodeAdmin = $_POST['admin_redeem_code'];
-            $customerIdAdmin = $_POST['customer_id'];
-
-            // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup hay không
-            $sqlCheckOrderAdmin = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCodeAdmin'";
-            $resultCheckOrderAdmin = $wpConn->query($sqlCheckOrderAdmin);
-
-            // Nếu mã tồn tại trong cơ sở dữ liệu WordPress
-            if ($resultCheckOrderAdmin->num_rows > 0) { 
-
-                // Kiểm tra xem mã đã tồn tại trong bảng redeem_history chưa
-                $sqlCheckRedeemAdmin = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCodeAdmin'";
-                $resultCheckRedeemAdmin = $conn->query($sqlCheckRedeemAdmin);
-
-                // Nếu mã chưa tồn tại trong bảng redeem_history
-                if ($resultCheckRedeemAdmin->num_rows == 0) { 
-                    // Thêm mã vào bảng redeem_history
-                    $sqlInsertRedeemAdmin = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerIdAdmin, '$redeemCodeAdmin')";
-                    if ($conn->query($sqlInsertRedeemAdmin) === TRUE) {
-
-                        // Tăng số lượng quay_count cho khách hàng
-                        $sqlUpdateQuayCountAdmin = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerIdAdmin";
-                        $conn->query($sqlUpdateQuayCountAdmin);
-
-                        // Kiểm tra giá trị của power_table_hidden
-                        $sqlCheckPowerTable = "SELECT power_table_hidden FROM customers WHERE id = $customerIdAdmin";
-                        $resultCheckPowerTable = $conn->query($sqlCheckPowerTable);
-                        $rowPowerTable = $resultCheckPowerTable->fetch_assoc();
-
-                        // Nếu power_table_hidden là 1, cập nhật giá trị thành 0
-                        if ($rowPowerTable['power_table_hidden'] == 1) {
-                            $sqlUpdatePowerTableAdmin = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerIdAdmin";
-                            $conn->query($sqlUpdatePowerTableAdmin);
-                        }
-
-                        $_SESSION['admin_message'] = "Cập nhật mã mua hàng thành công cho khách hàng có ID $customerIdAdmin.";
-                    } else {
-                        $_SESSION['admin_error'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+                    // Kiểm tra quay_count sau khi đã cập nhật và cập nhật power_table_hidden nếu cần thiết
+                    $sqlCheckQuayCount = "SELECT quay_count FROM customers WHERE id = $customerId";
+                    $resultCheckQuayCount = $conn->query($sqlCheckQuayCount);
+                    $rowQuayCount = $resultCheckQuayCount->fetch_assoc();
+                    if ($rowQuayCount['quay_count'] >= 1) {
+                        $sqlUpdatePowerTable = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerId";
+                        $conn->query($sqlUpdatePowerTable);
                     }
+                    $_SESSION['success_message'] = "Nhập mã mua hàng thành công và bạn đã nhận được thêm 1 lượt quay!";
+                    $user_info['quay_count'] += 1;
+                    $_SESSION['user_info']['quay_count'] = $user_info['quay_count'];
+                    $user_info['power_table_hidden'] = 0;
                 } else {
-                    $_SESSION['admin_error'] = "Mã mua hàng đã tồn tại.";
+                    $_SESSION['error_message'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
                 }
             } else {
-                $_SESSION['admin_error'] = "Mã mua hàng không hợp lệ.";
+                $_SESSION['error_message'] = "Mã mua hàng không hợp lệ.";
             }
             header("Location: ./index.php");
             exit;
         }
 
+
+      // Xử lý nhập mã mua hàng cho admin
+      if (isset($_POST['admin_redeem_submit'])) {
+          $redeemCodeAdmin = $_POST['admin_redeem_code'];
+          $customerIdAdmin = $_POST['customer_id'];
+
+          // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup
+          $sqlCheckOrderAdminInWP = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCodeAdmin'";
+          $resultCheckOrderAdminInWP = $wpConn->query($sqlCheckOrderAdminInWP);
+
+          // Kiểm tra xem mã mua hàng có tồn tại trong bảng orderids
+          $sqlCheckOrderAdminInOrderIds = "SELECT order_id FROM orderids WHERE order_id = '$redeemCodeAdmin'";
+          $resultCheckOrderAdminInOrderIds = $conn->query($sqlCheckOrderAdminInOrderIds);
+
+          if ($resultCheckOrderAdminInWP->num_rows > 0 || $resultCheckOrderAdminInOrderIds->num_rows > 0) {
+              // Mã mua hàng tồn tại trong wp_wc_order_product_lookup hoặc orderids, tiếp tục xử lý
+              // Kiểm tra xem mã đã tồn tại trong bảng redeem_history chưa
+              $sqlCheckRedeemAdmin = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCodeAdmin'";
+              $resultCheckRedeemAdmin = $conn->query($sqlCheckRedeemAdmin);
+
+              // Nếu mã chưa tồn tại trong bảng redeem_history
+              if ($resultCheckRedeemAdmin->num_rows == 0) { 
+                  // Thêm mã vào bảng redeem_history
+                  $sqlInsertRedeemAdmin = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerIdAdmin, '$redeemCodeAdmin')";
+                  if ($conn->query($sqlInsertRedeemAdmin) === TRUE) {
+                      // Tăng số lượng quay_count cho khách hàng
+                      $sqlUpdateQuayCountAdmin = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerIdAdmin";
+                      $conn->query($sqlUpdateQuayCountAdmin);
+
+                      // Kiểm tra giá trị của power_table_hidden
+                      $sqlCheckPowerTable = "SELECT power_table_hidden FROM customers WHERE id = $customerIdAdmin";
+                      $resultCheckPowerTable = $conn->query($sqlCheckPowerTable);
+                      $rowPowerTable = $resultCheckPowerTable->fetch_assoc();
+
+                      // Nếu power_table_hidden là 1, cập nhật giá trị thành 0
+                      if ($rowPowerTable['power_table_hidden'] == 1) {
+                          $sqlUpdatePowerTableAdmin = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerIdAdmin";
+                          $conn->query($sqlUpdatePowerTableAdmin);
+                      }
+
+                      $_SESSION['admin_message'] = "Cập nhật mã mua hàng thành công cho khách hàng có ID $customerIdAdmin.";
+                  } else {
+                      $_SESSION['admin_error'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+                  }
+              } else {
+                  $_SESSION['admin_error'] = "Mã mua hàng đã tồn tại.";
+              }
+          } else {
+              $_SESSION['admin_error'] = "Mã mua hàng không hợp lệ.";
+          }
+          header("Location: ./index.php");
+          exit;
+      }
 
     // Ở phần nội dung trang:
     ?>
@@ -580,6 +587,7 @@
                   <label for="vip_filter">Lọc theo cấp độ VIP:</label>
                   <select id="vip_filter" name="vip_filter" onchange="submitFilter()">
                       <option value="all" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'all') echo 'selected'; ?>>Tất cả</option>
+                      <option value="admin1" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'admin1') echo 'selected'; ?>>admin1</option>
                       <option value="Vip1" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'Vip1') echo 'selected'; ?>>Vip1</option>
                       <option value="Vip2" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'Vip2') echo 'selected'; ?>>Vip2</option>
                       <option value="Vip3" <?php if(isset($_GET['vip_filter']) && $_GET['vip_filter'] == 'Vip3') echo 'selected'; ?>>Vip3</option>
@@ -648,7 +656,7 @@
                   $offset = ($current_page - 1) * $items_per_page;
 
                   // Fetch and display VIP customers based on filter and phone search
-                  $sql = "SELECT * FROM customers WHERE level LIKE 'Vip%' AND level <= 'Vip5'$filter_sql LIMIT $offset, $items_per_page";
+                  $sql = "SELECT * FROM customers WHERE (level LIKE 'Vip%' OR level = 'admin1') AND level <= 'Vip5'$filter_sql LIMIT $offset, $items_per_page";
                   $result = $conn->query($sql);
 
                   if ($result->num_rows > 0) {

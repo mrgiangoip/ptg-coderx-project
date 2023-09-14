@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 
 app.get('/', async (req, res) => {
     let allOrderIds = [];
-    const maxPages = 100; // Giả sử có tối đa 200 trang
+    const maxPages = 80; // Giả sử có tối đa 200 trang
     const saleChannelForStore = 2; // Giả sử giá trị saleChannel cho mua hàng tại cửa hàng là 2
 
     for (let page = 1; page <= maxPages; page++) {
