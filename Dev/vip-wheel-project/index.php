@@ -104,7 +104,7 @@
             } elseif ($resultCheckOrderInWP->num_rows > 0 || $resultCheckOrderInOrderIds->num_rows > 0) {
                 // Mã mua hàng tồn tại trong wp_wc_order_product_lookup hoặc orderids, tiếp tục xử lý
                 // Cập nhật mã mua hàng vào bảng redeem_history
-                $sqlInsertRedeem = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerId, '$redeemCode')";
+                $sqlInsertRedeem = "INSERT INTO redeem_history (customer_id, redeem_code, redeemed_at) VALUES ($customerId, '$redeemCode', CONVERT_TZ(NOW(), '+00:00', '+07:00'))";
                 if ($conn->query($sqlInsertRedeem) === TRUE) {
                     // Cập nhật số lượt quay và power_table_hidden cho khách hàng
                     $sqlUpdateQuayAndPowerTable = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerId";
@@ -133,58 +133,65 @@
         }
 
 
-      // Xử lý nhập mã mua hàng cho admin
-      if (isset($_POST['admin_redeem_submit'])) {
-          $redeemCodeAdmin = $_POST['admin_redeem_code'];
-          $customerIdAdmin = $_POST['customer_id'];
+            // Xử lý nhập mã mua hàng cho admin
+            if (isset($_POST['admin_redeem_submit'])) {
+                $redeemCodeAdmin = $_POST['admin_redeem_code'];
+                $customerIdAdmin = $_POST['customer_id'];
 
-          // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup
-          $sqlCheckOrderAdminInWP = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCodeAdmin'";
-          $resultCheckOrderAdminInWP = $wpConn->query($sqlCheckOrderAdminInWP);
+                // Kiểm tra xem mã mua hàng có tồn tại trong bảng wp_wc_order_product_lookup
+                $sqlCheckOrderAdminInWP = "SELECT order_id FROM wp_wc_order_product_lookup WHERE order_id = '$redeemCodeAdmin'";
+                $resultCheckOrderAdminInWP = $wpConn->query($sqlCheckOrderAdminInWP);
 
-          // Kiểm tra xem mã mua hàng có tồn tại trong bảng orderids
-          $sqlCheckOrderAdminInOrderIds = "SELECT order_id FROM orderids WHERE order_id = '$redeemCodeAdmin'";
-          $resultCheckOrderAdminInOrderIds = $conn->query($sqlCheckOrderAdminInOrderIds);
+                // Kiểm tra xem mã mua hàng có tồn tại trong bảng orderids
+                $sqlCheckOrderAdminInOrderIds = "SELECT order_id FROM orderids WHERE order_id = '$redeemCodeAdmin'";
+                $resultCheckOrderAdminInOrderIds = $conn->query($sqlCheckOrderAdminInOrderIds);
 
-          if ($resultCheckOrderAdminInWP->num_rows > 0 || $resultCheckOrderAdminInOrderIds->num_rows > 0) {
-              // Mã mua hàng tồn tại trong wp_wc_order_product_lookup hoặc orderids, tiếp tục xử lý
-              // Kiểm tra xem mã đã tồn tại trong bảng redeem_history chưa
-              $sqlCheckRedeemAdmin = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCodeAdmin'";
-              $resultCheckRedeemAdmin = $conn->query($sqlCheckRedeemAdmin);
+                if ($resultCheckOrderAdminInWP->num_rows > 0 || $resultCheckOrderAdminInOrderIds->num_rows > 0) {
+                    // Mã mua hàng tồn tại trong wp_wc_order_product_lookup hoặc orderids, tiếp tục xử lý
 
-              // Nếu mã chưa tồn tại trong bảng redeem_history
-              if ($resultCheckRedeemAdmin->num_rows == 0) { 
-                  // Thêm mã vào bảng redeem_history
-                  $sqlInsertRedeemAdmin = "INSERT INTO redeem_history (customer_id, redeem_code) VALUES ($customerIdAdmin, '$redeemCodeAdmin')";
-                  if ($conn->query($sqlInsertRedeemAdmin) === TRUE) {
-                      // Tăng số lượng quay_count cho khách hàng
-                      $sqlUpdateQuayCountAdmin = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerIdAdmin";
-                      $conn->query($sqlUpdateQuayCountAdmin);
+                    // Kiểm tra xem mã đã tồn tại trong bảng redeem_history chưa
+                    $sqlCheckRedeemAdmin = "SELECT * FROM redeem_history WHERE redeem_code = '$redeemCodeAdmin'";
+                    $resultCheckRedeemAdmin = $conn->query($sqlCheckRedeemAdmin);
 
-                      // Kiểm tra giá trị của power_table_hidden
-                      $sqlCheckPowerTable = "SELECT power_table_hidden FROM customers WHERE id = $customerIdAdmin";
-                      $resultCheckPowerTable = $conn->query($sqlCheckPowerTable);
-                      $rowPowerTable = $resultCheckPowerTable->fetch_assoc();
+                    // Nếu mã chưa tồn tại trong bảng redeem_history
+                    if ($resultCheckRedeemAdmin->num_rows == 0) { 
+                        // Lấy tên người nhập mã mua hàng (admin)
+                        $enteredByAdmin = $_SESSION['user_info']['fullname'];
 
-                      // Nếu power_table_hidden là 1, cập nhật giá trị thành 0
-                      if ($rowPowerTable['power_table_hidden'] == 1) {
-                          $sqlUpdatePowerTableAdmin = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerIdAdmin";
-                          $conn->query($sqlUpdatePowerTableAdmin);
-                      }
+                        // Lấy level của admin hoặc admin1
+                        $adminLevel = $_SESSION['user_info']['level'];
 
-                      $_SESSION['admin_message'] = "Cập nhật mã mua hàng thành công cho khách hàng có ID $customerIdAdmin.";
-                  } else {
-                      $_SESSION['admin_error'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
-                  }
-              } else {
-                  $_SESSION['admin_error'] = "Mã mua hàng đã tồn tại.";
-              }
-          } else {
-              $_SESSION['admin_error'] = "Mã mua hàng không hợp lệ.";
-          }
-          header("Location: ./index.php");
-          exit;
-      }
+                        // Thêm mã vào bảng redeem_history và cập nhật cột entered_by và admin_level
+                        $sqlInsertRedeemAdmin = "INSERT INTO redeem_history (customer_id, redeem_code, entered_by, admin_level, redeemed_at) VALUES ($customerIdAdmin, '$redeemCodeAdmin', '$enteredByAdmin', '$adminLevel', CONVERT_TZ(NOW(), '+00:00', '+07:00'))";
+                        if ($conn->query($sqlInsertRedeemAdmin) === TRUE) {
+                            // Tăng số lượng quay_count cho khách hàng
+                            $sqlUpdateQuayCountAdmin = "UPDATE customers SET quay_count = quay_count + 1 WHERE id = $customerIdAdmin";
+                            $conn->query($sqlUpdateQuayCountAdmin);
+
+                            // Kiểm tra giá trị của power_table_hidden
+                            $sqlCheckPowerTable = "SELECT power_table_hidden FROM customers WHERE id = $customerIdAdmin";
+                            $resultCheckPowerTable = $conn->query($sqlCheckPowerTable);
+                            $rowPowerTable = $resultCheckPowerTable->fetch_assoc();
+
+                            // Nếu power_table_hidden là 1, cập nhật giá trị thành 0
+                            if ($rowPowerTable['power_table_hidden'] == 1) {
+                                $sqlUpdatePowerTableAdmin = "UPDATE customers SET power_table_hidden = 0 WHERE id = $customerIdAdmin";
+                                $conn->query($sqlUpdatePowerTableAdmin);
+                            }
+
+                            $_SESSION['admin_message'] = "Cập nhật mã mua hàng thành công cho khách hàng có ID $customerIdAdmin.";
+                        } else {
+                            $_SESSION['admin_error'] = "Lỗi khi thêm mã mua hàng: " . $conn->error;
+                        }
+                    } else {
+                        $_SESSION['admin_error'] = "Mã mua hàng đã tồn tại.";
+                    }
+                } else {
+                    $_SESSION['admin_error'] = "Mã mua hàng không hợp lệ.";
+                }
+                header("Location: ./index.php");
+                exit;
+            }
 
     // Ở phần nội dung trang:
     ?>
@@ -604,6 +611,68 @@
                   <button type="submit" class="btn btn-primary">Tìm kiếm</button>
               </form>
             </div>
+            <div class="container vip-info  mt-5">
+                  <?php
+                       if ($user_info['level'] == 'admin') {
+                        $records_per_page = 20;
+
+                        // Lấy tổng số bản ghi
+                        $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM redeem_history WHERE admin_level IN (?, ?)");
+                        $stmt->bind_param("ss", $level1, $level2);
+                        $level1 = 'admin';
+                        $level2 = 'admin1';
+                        $stmt->execute();
+                        $resultCount = $stmt->get_result();
+                        $rowTotal = $resultCount->fetch_assoc();
+                        $total_pages = ceil($rowTotal['total'] / $records_per_page);
+
+                        $current_page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? intval($_GET['page']) : 1;
+                        $current_page = max(1, min($total_pages, $current_page));
+
+                        $start_from = ($current_page - 1) * $records_per_page;
+
+                        // Lấy dữ liệu
+                        $stmt = $conn->prepare("SELECT r.id, r.customer_id, r.redeem_code, r.redeemed_at, r.entered_by, r.admin_level, c.fullname
+                        FROM redeem_history r
+                        JOIN customers c ON r.customer_id = c.id
+                        WHERE r.admin_level IN (?, ?)
+                        LIMIT ?, ?");
+                        $stmt->bind_param("ssii", $level1, $level2, $start_from, $records_per_page);
+                        $stmt->execute();
+                        $resultRedeemHistory = $stmt->get_result();
+
+                        if ($resultRedeemHistory->num_rows > 0) {
+                            echo "<h2>Lịch sử mã mua hàng:</h2>";
+                            echo '<table class="table table-striped">';
+                            echo "<thead><tr><th>Tên Khách Hàng</th><th>Mã Mua Hàng</th><th>Thời Gian Nhập</th><th>Tên Người Nhập</th><th>Cấp Độ</th></tr></thead>";
+                            echo "<tbody>";
+
+                            while ($row = $resultRedeemHistory->fetch_assoc()) {
+                                echo "<tr>";
+                                echo "<td>" . $row["fullname"] . "</td>";
+                                echo "<td>" . $row["redeem_code"] . "</td>";
+                                echo "<td>" . $row["redeemed_at"] . "</td>";
+                                echo "<td>" . $row["entered_by"] . "</td>";
+                                echo "<td>" . $row["admin_level"] . "</td>";
+                                echo "</tr>";
+                            }
+
+                            echo "</tbody>";
+                            echo "</table>";
+                            // Phân trang
+                            echo "<div>Trang: </div>";
+                            echo "<ul class='pagination'>";
+                            for ($page = 1; $page <= $total_pages; $page++) {
+                                $activeClass = $page == $current_page ? "active" : "";
+                                echo "<li class='page-item $activeClass'><a class='page-link' href='./index.php?page=$page'>$page</a></li> ";
+                            }
+                            echo "</ul>";
+                        } else {
+                            echo "Không có dữ liệu lịch sử mã mua hàng.";
+                        }
+                       } //kết thúc xét admin
+                    ?>
+            </div>
             <div id="messageBox" style="margin: 10px 0px !important;"></div>
             <?php
               if(isset($_SESSION['admin_message'])) {
@@ -622,7 +691,8 @@
               if(isset($user_info['level'])) {
                   if($user_info['level'] == 'admin' || 
                     ($user_info['level'] == 'admin1' && isset($_POST['phone_search']) && !empty($_POST['phone_search']))) {
-                      ?>
+               ?>
+                      
                       <table cellpadding="0" cellspacing="0" border="0" class="luckywheel centered-content">
                           <!-- ... (Table headers) ... -->
                           <tr>
@@ -726,11 +796,19 @@
     $row_count = $result_count->fetch_assoc();
     $total_pages = ceil($row_count['total'] / $items_per_page);
 
-    echo "<div>Trang: ";
+   echo "<div>Trang: </div>";
+    echo "<ul class='pagination'>";
+
     for ($i = 1; $i <= $total_pages; $i++) {
-        echo "<a href='?page=$i&vip_filter=$vip_filter'>$i</a> ";
+        if ($i == $current_page) { // Highlight the current page
+            echo "<li class='page-item active'><a class='page-link' href='?page=$i&vip_filter=$vip_filter'>$i</a></li>";
+        } else {
+            echo "<li class='page-item'><a class='page-link' href='?page=$i&vip_filter=$vip_filter'>$i</a></li>";
+        }
     }
-    echo "</div>";
+
+    echo "</ul>";
+
     ?>
 <?php } ?>
 
