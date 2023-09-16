@@ -20,9 +20,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/fetchData', async (req, res) => {
-    const maxPage = 30; // Số trang tối đa bạn muốn lấy (thay đổi theo nhu cầu)
-    const levels = ["Vip1", "Vip2", "Vip3", "Vip4", "Vip5"]; // Các mức level bạn muốn lấy
-    const pageSize = 50; // Số lượng ID trên mỗi trang
+    const maxPage = 238; // Số trang tối đa bạn muốn lấy (thay đổi theo nhu cầu)
+    const levels = ["Vip2", "Vip3", "Vip4", "Vip5","VIP5"]; // Các mức level bạn muốn lấy
+    const pageSize = 999; // Số lượng ID trên mỗi trang
 
     let allData = [];
     

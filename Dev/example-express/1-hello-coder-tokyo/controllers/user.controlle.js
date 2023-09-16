@@ -33,8 +33,27 @@ module.exports.get = function(request, response){
 	});
 };
 
-module.exports.postCreate = function(request, response){
-	request.body.id = shortid.generate();
+module.exports.postCreate = function(request, response) {
+  request.body.id = shortid.generate();
+  var errors = [];
+
+  if (!request.body.name) {
+    errors.push('Name is required');
+  }
+
+  if (!request.body.phone) {
+    errors.push('Phone is required');
+  }
+
+  if (errors.length) {
+    response.render('users/create', {
+      errors: errors,
+      values: request.body
+    });
+  } else {
+
+
 	db.get('users').push(request.body).write();
 	response.redirect("/users");
+  }
 };
