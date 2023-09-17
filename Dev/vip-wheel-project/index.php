@@ -589,7 +589,7 @@
                 }
             ?>
             <!-- Biểu mẫu lọc theo cấp độ VIP -->
-            <div class="container vip-info  mt-5">
+            <div class="vip-info  mt-5">
               <form id="filter-form" method="get" action="">
                   <label for="vip_filter">Lọc theo cấp độ VIP:</label>
                   <select id="vip_filter" name="vip_filter" onchange="submitFilter()">
@@ -611,68 +611,181 @@
                   <button type="submit" class="btn btn-primary">Tìm kiếm</button>
               </form>
             </div>
-            <div class="container vip-info  mt-5">
+               
+              <?php if ($user_info['level'] == 'admin') { //bắt đầu phần bảng Lịch sử?>    
+              <!-- Bảng lịch sử mã mua hàng -->
+                <div class="vip-info mt-5">
+                <div class="text-center my-3">
+                    <button class="btn btn-primary" id="showRedeemHistory" style="display: none;">Hiển Thị Lịch Sử Mã Mua Hàng</button>
+                    <button class="btn btn-info" id="showCheckboxHistory">Hiển Thị Lịch Sử Checkbox</button>
+                </div>
+                <div id="redeemHistoryTable" class="history-table">
                   <?php
-                       if ($user_info['level'] == 'admin') {
-                        $records_per_page = 20;
+                      $view = isset($_GET['view']) ? $_GET['view'] : 'redeem'; // Mặc định là redeem nếu không có tham số                                                                   
+                      if ($user_info['level'] == 'admin') {
+                            $records_per_page = 5;
 
-                        // Lấy tổng số bản ghi
-                        $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM redeem_history WHERE admin_level IN (?, ?)");
-                        $stmt->bind_param("ss", $level1, $level2);
-                        $level1 = 'admin';
-                        $level2 = 'admin1';
-                        $stmt->execute();
-                        $resultCount = $stmt->get_result();
-                        $rowTotal = $resultCount->fetch_assoc();
-                        $total_pages = ceil($rowTotal['total'] / $records_per_page);
+                            // Lấy tổng số bản ghi
+                            $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM redeem_history WHERE admin_level IN (?, ?)");
+                            $stmt->bind_param("ss", $level1, $level2);
+                            $level1 = 'admin';
+                            $level2 = 'admin1';
+                            $stmt->execute();
+                            $resultCount = $stmt->get_result();
+                            $rowTotal = $resultCount->fetch_assoc();
+                            $total_pages = ceil($rowTotal['total'] / $records_per_page);
 
-                        $current_page = (isset($_GET['page']) && is_numeric($_GET['page'])) ? intval($_GET['page']) : 1;
-                        $current_page = max(1, min($total_pages, $current_page));
+                            $redeemPage = (isset($_GET['redeemPage']) && is_numeric($_GET['redeemPage'])) ? intval($_GET['redeemPage']) : 1;
+                            $redeemPage = max(1, min($total_pages, $redeemPage));
 
-                        $start_from = ($current_page - 1) * $records_per_page;
+                            $start_from = ($redeemPage - 1) * $records_per_page;
 
-                        // Lấy dữ liệu
-                        $stmt = $conn->prepare("SELECT r.id, r.customer_id, r.redeem_code, r.redeemed_at, r.entered_by, r.admin_level, c.fullname
-                        FROM redeem_history r
-                        JOIN customers c ON r.customer_id = c.id
-                        WHERE r.admin_level IN (?, ?)
-                        LIMIT ?, ?");
-                        $stmt->bind_param("ssii", $level1, $level2, $start_from, $records_per_page);
-                        $stmt->execute();
-                        $resultRedeemHistory = $stmt->get_result();
+                            // Lấy dữ liệu
+                            $stmt = $conn->prepare("SELECT r.id, r.customer_id, r.redeem_code, r.redeemed_at, r.entered_by, r.admin_level, c.fullname
+                            FROM redeem_history r
+                            JOIN customers c ON r.customer_id = c.id
+                            WHERE r.admin_level IN (?, ?)
+                            LIMIT ?, ?");
+                            $stmt->bind_param("ssii", $level1, $level2, $start_from, $records_per_page);
+                            $stmt->execute();
+                            $resultRedeemHistory = $stmt->get_result();
 
-                        if ($resultRedeemHistory->num_rows > 0) {
-                            echo "<h2>Lịch sử mã mua hàng:</h2>";
+                            if ($resultRedeemHistory->num_rows > 0) {
+                                echo "<h1>Lịch Sử Mã Mua Hàng</h1>";
+                                echo '<table class="table table-striped">';
+                                echo "<thead><tr><th>Tên Khách Hàng</th><th>Mã Mua Hàng</th><th>Thời Gian Nhập</th><th>Tên Người Nhập</th><th>Cấp Độ</th></tr></thead>";
+                                echo "<tbody>";
+
+                                while ($row = $resultRedeemHistory->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<td>" . $row["fullname"] . "</td>";
+                                    echo "<td>" . $row["redeem_code"] . "</td>";
+                                    echo "<td>" . $row["redeemed_at"] . "</td>";
+                                    echo "<td>" . $row["entered_by"] . "</td>";
+                                    echo "<td>" . $row["admin_level"] . "</td>";
+                                    echo "</tr>";
+                                }
+
+                                echo "</tbody>";
+                                echo "</table>";
+                                // Phân trang
+                                echo "<div>Trang: </div>";
+                                echo "<ul class='pagination'>";
+                                for ($page = 1; $page <= $total_pages; $page++) {
+                                    $activeClass = $page == $redeemPage ? "active" : "";
+                                    echo "<li class='page-item $activeClass'><a class='page-link' href='./index.php?redeemPage=$page&view=redeem'>$page</a></li>";
+                                }
+                                echo "</ul>";
+                            } else {
+                                echo "Không có dữ liệu lịch sử mã mua hàng.";
+                            }
+
+                           } //kết thúc xét admin
+                        ?>
+                    </div>
+              <!-- Bảng lịch sử checkbox -->
+              <div id="checkboxHistoryTable" class="history-table">   
+                <?php
+                    if ($user_info['level'] == 'admin') {
+                      // Bước 1: Xác định trang hiện tại
+                      $checkboxPage = isset($_GET['checkboxPage']) ? intval($_GET['checkboxPage']) : 1;
+                      $limit = 5; // số dòng trên mỗi trang
+                      $offset = ($checkboxPage - 1) * $limit;
+
+                      // Bước 2: Lấy tổng số dòng
+                      $sql_count = "SELECT COUNT(*) AS total FROM prize_actions";
+                      $result_count = $conn->query($sql_count);
+                      $total_records = $result_count->fetch_assoc()['total'];
+                      $total_pages = ceil($total_records / $limit);
+
+                      // Bước 3: Lấy dữ liệu dựa vào trang hiện tại và giới hạn số dòng
+                      $sql = "SELECT prize_actions.*, quay_thuong.result, quay_thuong.customer_id, customers.fullname AS customer_name
+                              FROM prize_actions
+                              JOIN quay_thuong ON prize_actions.prize_id = quay_thuong.id
+                              JOIN customers ON quay_thuong.customer_id = customers.id
+                              LIMIT $offset, $limit";
+                      $result = $conn->query($sql);
+
+                        if ($result->num_rows > 0) {
+                            echo '<h1>Lịch Sử Checkbox</h1>';
                             echo '<table class="table table-striped">';
-                            echo "<thead><tr><th>Tên Khách Hàng</th><th>Mã Mua Hàng</th><th>Thời Gian Nhập</th><th>Tên Người Nhập</th><th>Cấp Độ</th></tr></thead>";
-                            echo "<tbody>";
-
-                            while ($row = $resultRedeemHistory->fetch_assoc()) {
-                                echo "<tr>";
-                                echo "<td>" . $row["fullname"] . "</td>";
-                                echo "<td>" . $row["redeem_code"] . "</td>";
-                                echo "<td>" . $row["redeemed_at"] . "</td>";
-                                echo "<td>" . $row["entered_by"] . "</td>";
-                                echo "<td>" . $row["admin_level"] . "</td>";
-                                echo "</tr>";
+                            echo '<thead>';
+                            echo '<tr>';
+                            echo '<th scope="col">Tên Người Dùng</th>'; // Thêm cột tên người dùng dựa vào customer_id
+                            echo '<th scope="col">Hành Động</th>';
+                            echo '<th scope="col">Kết Quả</th>'; // Thêm cột kết quả
+                            echo '<th scope="col">Thời Gian</th>';
+                            echo '<th scope="col">Người Dùng</th>'; 
+                            echo '<th scope="col">Cấp Độ</th>';
+                            echo '</tr>';
+                            echo '</thead>';
+                            echo '<tbody>';
+                            while ($row = $result->fetch_assoc()) {
+                                echo '<tr>';
+                                echo '<td>' . $row['customer_name'] . '</td>';
+                                echo '<td>' . $row['action_type'] . '</td>';
+                                echo '<td>' . $row['result'] . '</td>'; // Hiển thị kết quả dưới dạng checkmark hoặc cross
+                                echo '<td>' . $row['action_timestamp'] . '</td>';
+                                echo '<td>' . $row['entered_by'] . '</td>'; 
+                                echo '<td>' . $row['admin_level'] . '</td>';
+                                echo '</tr>';
                             }
-
-                            echo "</tbody>";
-                            echo "</table>";
-                            // Phân trang
+                            echo '</tbody>';
+                            echo '</table>';
+                          // Bước 4: Hiển thị các nút phân trang
+                            echo '<nav>';
                             echo "<div>Trang: </div>";
-                            echo "<ul class='pagination'>";
-                            for ($page = 1; $page <= $total_pages; $page++) {
-                                $activeClass = $page == $current_page ? "active" : "";
-                                echo "<li class='page-item $activeClass'><a class='page-link' href='./index.php?page=$page'>$page</a></li> ";
+                            echo '<ul class="pagination">';
+
+                            for ($i = 1; $i <= $total_pages; $i++) {
+                                if ($i == $checkboxPage) {
+                                    echo '<li class="page-item active"><a class="page-link" href="#">' . $i . '</a></li>';
+                                } else {
+                                    echo '<li class="page-item"><a class="page-link" href="index.php?checkboxPage=' . $i . '&view=checkbox">' . $i . '</a></li>';
+                                }
                             }
-                            echo "</ul>";
+
+                            echo '</ul>';
+                            echo '</nav>';
                         } else {
-                            echo "Không có dữ liệu lịch sử mã mua hàng.";
+                            echo 'Không có lịch sử checkbox.';
                         }
-                       } //kết thúc xét admin
-                    ?>
-            </div>
+                    }
+                  ?>
+                  </div>
+                </div>
+                <?php } //Kết thúc phần bảng Lịch sử ?>
+              <script>
+                $(document).ready(function() {
+                  var currentView = "<?php echo $view; ?>";
+
+                  if (currentView == 'redeem') {
+                      $('#showRedeemHistory').hide();
+                      $('#showCheckboxHistory').show();
+                      $('#redeemHistoryTable').show();
+                      $('#checkboxHistoryTable').hide();
+                  } else {
+                      $('#showCheckboxHistory').hide();
+                      $('#showRedeemHistory').show();
+                      $('#redeemHistoryTable').hide();
+                      $('#checkboxHistoryTable').show();
+                  }
+
+                  $('#showRedeemHistory').click(function() {
+                      $(this).hide();
+                      $('#showCheckboxHistory').show();
+                      $('#redeemHistoryTable').show();
+                      $('#checkboxHistoryTable').hide();
+                  });
+
+                  $('#showCheckboxHistory').click(function() {
+                      $(this).hide();
+                      $('#showRedeemHistory').show();
+                      $('#redeemHistoryTable').hide();
+                      $('#checkboxHistoryTable').show();
+                  });
+              });
+            </script>
             <div id="messageBox" style="margin: 10px 0px !important;"></div>
             <?php
               if(isset($_SESSION['admin_message'])) {
@@ -876,7 +989,7 @@
                       setTimeout(() => {
                           $('#messageBox').fadeOut();
                           location.reload(); // Tải lại trang tại đây
-                      }, 500);
+                      }, 1000);
                   }
               });
           });

@@ -6,8 +6,8 @@ body {
           }
 
           .container {
-              max-width: 1200px;
-              width: 1200px;
+              max-width: 1250px;
+              width: 1250px;
               margin: 0 auto;
               padding: 20px;
               box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -155,7 +155,7 @@ body {
         /* CSS cho phần quay thưởng */
         .luckywheel {
             width: 100% !important;
-            max-width: 1200px;
+            max-width: 1150px;
             margin: 0 auto;
             background-color: #fff;
             padding: 20px;
@@ -193,6 +193,14 @@ body {
             text-align: center;
             vertical-align: middle;
         }
+        .history-table {
+            display: none;
+        }
+
+        #redeemHistoryTable {
+            display: block;
+        }
+
         /* Responsive code starts here */
 
       /* Màn hình máy tính bảng */
