@@ -1,0 +1,25 @@
+extends ../layouts/common
+
+block content
+  h1
+   span.me-3 Users List
+   a.btn.btn-primary(href="/users/create") New
+  .d-flex.align-items-center
+    
+    form.ms-auto(action="/users/search", method="GET", class="d-flex")
+      input(type="text", name="q", value=q, class="form-control")
+      button(class="btn btn-primary ms-2") Search
+
+  table.table
+    thead
+      tr
+        th Name
+        th Phone
+        th Actions
+    tbody
+      each user in users
+        tr
+          td= user.name
+          td= user.phone
+          td
+            a.btn.btn-light(href='/users/' + user.id) View
