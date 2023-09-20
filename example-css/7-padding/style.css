@@ -1,0 +1,33 @@
+.default-link:link {
+	color: #2e492e;
+	text-decoration: none;
+	font-family: sans-serif;
+}
+
+.default-link:visited {
+  color: #2e492e;
+}
+
+.default-link:hover{
+ text-decoration: underline;
+}
+
+.default-link:active {
+ color: red;
+}
+.button-link{
+	background-color: #2e492e;
+    text-decoration: none;
+    color: #fff;
+    font-family: arial, sans-serif;
+    padding: 9px 23px;
+}
+.button-link:hover {
+	background-color: #03a703;
+}
+.block{
+	display: block;
+}
+.inline{
+	display: inline;
+}
