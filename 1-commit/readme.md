@@ -24,4 +24,4 @@ This project is just a demo how to use git
 // git reset --hard <to commit>
 
 // git revert <commit>
-// 
+// .gitignore
