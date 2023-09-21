@@ -1,0 +1,21 @@
+extends ../layouts/common
+
+block content
+  h1
+    span.mr-3 Product List
+    a.btn.btn-primary(href="/products/create") New
+
+  .d-flex.justify-content-end.mb-3
+    form(action="/products/search", method="GET", class="form-inline")
+      input.form-control.mr-2(type="text", name="q", value=q, placeholder="Search")
+      button.btn.btn-primary(type="submit") Search
+
+  .row
+    each product in products
+      .col-lg-3.col-md-4.col-sm-6.mb-4
+        .card
+          img.card-img-top(src=product.image, alt=product.name)
+          .card-body
+            h5.card-title= product.name
+            p.card-text= product.Description
+            a.btn.btn-light(href='/products/' + product.id) View
