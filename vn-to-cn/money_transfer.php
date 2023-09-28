@@ -77,33 +77,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h2>Chuyển tiền từ Việt Nam sang Trung Quốc</h2>
       <!-- Thêm nút đăng xuất -->
     <a href="logout.php" class="btn btn-danger">Đăng xuất</a>
-    <form action="" method="post">
-        <div class="form-group">
-            <label for="bank_name_vn">Tên ngân hàng Việt Nam:</label>
-            <input type="text" class="form-control" name="bank_name_vn" id="bank_name_vn" required>
-        </div>
-        <div class="form-group">
-            <label for="amount_vn">Số tiền Việt chuyển:</label>
-            <input type="number" class="form-control" name="amount_vn" id="amount_vn" required>
-        </div>
-        <div class="form-group">
-            <label for="exchange_rate">Tỉ giá:</label>
-            <input type="number" step="0.01" class="form-control" name="exchange_rate" id="exchange_rate" required>
-        </div>
-        <div class="form-group">
-            <label for="fee">Phí:</label>
-            <input type="number" step="0.01" class="form-control" name="fee" id="fee" required>
-        </div>
-        <div class="form-group">
-            <label for="recipient_name">Tên người nhận:</label>
-            <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
-        </div>
-        <div class="form-group">
-            <label for="bank_name_cn">Tên ngân hàng Trung Quốc:</label>
-            <input type="text" class="form-control" name="bank_name_cn" id="bank_name_cn" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Chuyển</button>
-    </form>
+    <a href="money_transfer2.php" class="btn btn-success">CN to VN</a>
+            <form action="" method="post">
+                <div class="row">
+                    <div class="col-md-2 form-group">
+                        <label for="bank_name_vn">Tên NH VN:</label>
+                        <input type="text" class="form-control" name="bank_name_vn" id="bank_name_vn" required>
+                    </div>
+                    <div class="col-md-2 form-group">
+                        <label for="amount_vn">Số tiền Việt chuyển:</label>
+                        <input type="number" class="form-control" name="amount_vn" id="amount_vn" required>
+                    </div>
+                    <div class="col-md-2 form-group">
+                        <label for="exchange_rate">Tỉ giá:</label>
+                        <input type="number" step="0.01" class="form-control" name="exchange_rate" id="exchange_rate" required>
+                    </div>
+                    <div class="col-md-2 form-group">
+                        <label for="fee">Phí:</label>
+                        <input type="number" step="0.01" class="form-control" name="fee" id="fee" required>
+                    </div>
+                    <div class="col-md-2 form-group">
+                        <label for="recipient_name">Tên người nhận:</label>
+                        <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
+                    </div>
+                    <div class="col-md-2 form-group">
+                        <label for="bank_name_cn">Tên NH TQ:</label>
+                        <input type="text" class="form-control" name="bank_name_cn" id="bank_name_cn" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Chuyển</button>
+            </form>
 
     <?php
     if (isset($_SESSION['message'])) {
@@ -112,43 +115,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     unset($_SESSION['message']);  // Xóa thông điệp khỏi phiên sau khi hiển thị
     }
 
-	
-    $result = $conn->query("SELECT * FROM vn_to_cn_transfer");
-    if ($result->num_rows > 0) {
-        echo '<table class="table table-striped mt-4">
-            <thead>
-                <tr>
-                    <th>Ngân hàng VN</th>
-                    <th>Số tiền VN</th>
-                    <th>Tỉ giá</th>
-                    <th>Phí</th>
-                    <th>Số tiền CN</th>
-                    <th>Người nhận</th>
-                    <th>Ngân hàng CN</th>
-                    <th>Cho phép sao chép</th>
-                </tr>
-            </thead>
-            <tbody>';
+    
+    $sql = "SELECT vn_to_cn_transfer.*, users.fullname 
+        FROM vn_to_cn_transfer 
+        INNER JOIN users ON vn_to_cn_transfer.user_id = users.id";
+      $result = $conn->query($sql);
+
+      if ($result->num_rows > 0) {
+          echo '<table class="table table-striped mt-4">
+              <thead>
+                  <tr>
+                      <th>Người chuyển</th>
+                      <th>NH VN</th>
+                      <th>Số tiền VN</th>
+                      <th>Tỉ giá</th>
+                      <th>Phí</th>
+                      <th>Số tiền Tệ nhận</th>
+                      <th>Người nhận</th>
+                      <th>NH CN</th>
+                      <th>Cho phép sao chép</th>
+                  </tr>
+              </thead>
+              <tbody>';
 
           while ($row = $result->fetch_assoc()) {
-            $canCopy = $row['user_id'] == $_SESSION['user_id'] ? '' : 'nocopy';
-            $checkboxState = ($row['user_id'] == $_SESSION['user_id']) ? 'checked' : '';
+              $canCopy = $row['user_id'] == $_SESSION['user_id'] ? '' : 'nocopy';
+              $checkboxState = ($row['user_id'] == $_SESSION['user_id']) ? 'checked' : '';
 
-            echo "<tr class='{$canCopy}'>
-                <td>" . $row["bank_name_vn"] . "</td>
-                <td>" . $row["amount_vn"] . "</td>
-                <td>" . $row["exchange_rate"] . "</td>
-                <td>" . $row["fee"] . "</td>
-                <td>" . floor(($row["amount_vn"] / $row["exchange_rate"]) - $row["fee"]) . "</td>
-                <td>" . $row["recipient_name"] . "</td>
-                <td>" . $row["bank_name_cn"] . "</td>
-                <td><input type='checkbox' {$checkboxState} onclick='toggleCopy(this, {$row['user_id']})'></td>
-            </tr>";
-        }
+              echo "<tr class='{$canCopy}'>
+                  <td>" . htmlspecialchars($row["fullname"]) . "</td>
+                  <td>" . htmlspecialchars($row["bank_name_vn"]) . "</td>
+                  <td>" . htmlspecialchars($row["amount_vn"]) . "</td>
+                  <td>" . htmlspecialchars($row["exchange_rate"]) . "</td>
+                  <td>" . htmlspecialchars($row["fee"]) . "</td>
+                  <td>" . floor(($row["amount_vn"] / $row["exchange_rate"]) - $row["fee"]) . "</td>
+                  <td>" . htmlspecialchars($row["recipient_name"]) . "</td>
+                  <td>" . htmlspecialchars($row["bank_name_cn"]) . "</td>
+                  <td><input type='checkbox' {$checkboxState} onclick='toggleCopy(this, {$row['user_id']})'></td>
+              </tr>";
+          }
 
-        echo '</tbody>
-        </table>';
-    }
+          echo '</tbody>
+          </table>';
+      }
     ?>
 </div>
 

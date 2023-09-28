@@ -27,8 +27,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $recipient_name = $_POST['recipient_name'];
     $converted_amount = ($amount_to_transfer * $exchange_rate) - $transfer_fee;
     $bank_vietnam = $_POST['bank_vietnam'];
+    // Lấy giá trị của checkbox
     $checkbox_checked = isset($_POST['checkbox']) ? 1 : 0;
+
+    // Lấy user_id của người dùng hiện tại (phải được xác định trước đó)
     $user_id = $_SESSION['user_id'];
+
+    // Cập nhật cơ sở dữ liệu với trạng thái checkbox
+    $update_query = "UPDATE cn_to_vn_transfer SET checked = $checkbox_checked WHERE user_id = $user_id AND your_condition_here";
 
     $sql = "INSERT INTO cn_to_vn_transfer (bank_china, exchange_rate, transfer_fee, amount_to_transfer, recipient_name, converted_amount, bank_vietnam, checkbox_checked, user_id) VALUES ('$bank_china', $exchange_rate, $transfer_fee, $amount_to_transfer, '$recipient_name', $converted_amount, '$bank_vietnam', $checkbox_checked, $user_id)";
 
@@ -66,33 +72,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php if (isset($_SESSION['user_id'])): ?>
 <div class="container mt-5">
     <h2>Chuyển tiền từ Trung Quốc ra Việt Nam</h2>
-  	<!-- Thêm nút đăng xuất -->
+    <!-- Thêm nút đăng xuất -->
     <a href="logout.php" class="btn btn-danger">Đăng xuất</a>
-    <a href="money_transfer.php" class="btn btn-success">CN to VN</a>
+    <a href="money_transfer.php" class="btn btn-success">VN to CN</a>
     <form action="" method="post">
-        <div class="form-group">
-            <label for="bank_china">Tên ngân hàng Trung Quốc:</label>
-            <input type="text" class="form-control" name="bank_china" id="bank_china" required>
-        </div>
-        <div class="form-group">
-            <label for="exchange_rate">Tỉ giá hiện tại:</label>
-            <input type="number" step="0.01" class="form-control" name="exchange_rate" id="exchange_rate" required>
-        </div>
-        <div class="form-group">
-            <label for="transfer_fee">Phí chuyển:</label>
-            <input type="number" step="0.01" class="form-control" name="transfer_fee" id="transfer_fee" required>
-        </div>
-        <div class="form-group">
-            <label for="amount_to_transfer">Số tiền cần chuyển:</label>
-            <input type="number" step="0.01" class="form-control" name="amount_to_transfer" id="amount_to_transfer" required>
-        </div>
-        <div class="form-group">
-            <label for="recipient_name">Tên người nhận tiền:</label>
-            <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
-        </div>
-        <div class="form-group">
-            <label for="bank_vietnam">Tên ngân hàng Việt Nam:</label>
-            <input type="text" class="form-control" name="bank_vietnam" id="bank_vietnam" required>
+        <div class="row">
+            <div class="col-md-2 form-group">
+                <label for="bank_china">Tên NH TQ:</label>
+                <input type="text" class="form-control" name="bank_china" id="bank_china" required>
+            </div>
+            <div class="col-md-2 form-group">
+                <label for="exchange_rate">Tỉ giá hiện tại:</label>
+                <input type="number" step="0.01" class="form-control" name="exchange_rate" id="exchange_rate" required>
+            </div>
+            <div class="col-md-2 form-group">
+                <label for="transfer_fee">Phí chuyển:</label>
+                <input type="number" step="0.01" class="form-control" name="transfer_fee" id="transfer_fee" required>
+            </div>
+            <div class="col-md-2 form-group">
+                <label for="amount_to_transfer">Số tiền cần chuyển:</label>
+                <input type="number" step="0.01" class="form-control" name="amount_to_transfer" id="amount_to_transfer" required>
+            </div>
+            <div class="col-md-2 form-group">
+                <label for="recipient_name">Tên người nhận tiền:</label>
+                <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
+            </div>
+            <div class="col-md-2 form-group">
+                <label for="bank_vietnam">Tên NH VN:</label>
+                <input type="text" class="form-control" name="bank_vietnam" id="bank_vietnam" required>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Chuyển</button>
     </form>
@@ -104,43 +112,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       unset($_SESSION['message']);  // Xóa thông điệp khỏi phiên sau khi hiển thị
       }
 
-      $result = $conn->query("SELECT * FROM cn_to_vn_transfer WHERE user_id = {$_SESSION['user_id']}");
+      // Truy vấn JOIN giữa cn_to_vn_transfer và users dựa trên user_id
+      $result = $conn->query("SELECT t.*, u.fullname FROM cn_to_vn_transfer t 
+                              JOIN users u ON t.user_id = u.id");
 
       if ($result->num_rows > 0) {
           echo '<table class="table table-striped mt-4">
               <thead>
                   <tr>
-                      <th>Tên ngân hàng Trung Quốc</th>
-                      <th>Tỉ giá hiện tại</th>
-                      <th>Phí chuyển</th>
-                      <th>Số tiền cần chuyển</th>
-                      <th>Tên người nhận tiền</th>
-                      <th>Số tiền quy đổi ra tiền Việt</th>
-                      <th>Tên ngân hàng Việt Nam</th>
-                      <th>Không cho phép sao chép</th>
+                      <th>Người chuyển</th>
+                      <th>NH TQ</th>
+                      <th>Tỉ giá</th>
+                      <th>Phí</th>
+                      <th>Số Tệ Chuyển</th>
+                      <th>Người nhận</th>
+                      <th>Số tiền Việt nhận</th>
+                      <th>NH VN</th>
+                      <th>Cho phép sao chép</th>
                   </tr>
               </thead>
               <tbody>';
 
           while ($row = $result->fetch_assoc()) {
-              $canCopy = $row['checkbox_checked'] ? 'nocopy' : '';
-              $checkboxState = $row['checkbox_checked'] ? 'checked' : '';
+              $canCopy = $row['user_id'] == $_SESSION['user_id'] ? '' : 'nocopy';
+              $checkboxState = ($row['user_id'] == $_SESSION['user_id']) ? 'checked' : '';
 
               echo "<tr class='{$canCopy}'>
-                  <td>" . htmlspecialchars($row["bank_china"]) . "</td>
-                  <td>" . htmlspecialchars($row["exchange_rate"]) . "</td>
-                  <td>" . htmlspecialchars($row["transfer_fee"]) . "</td>
-                  <td>" . htmlspecialchars($row["amount_to_transfer"]) . "</td>
-                  <td>" . htmlspecialchars($row["recipient_name"]) . "</td>
-                  <td>" . htmlspecialchars($row["converted_amount"]) . "</td>
-                  <td>" . htmlspecialchars($row["bank_vietnam"]) . "</td>
-                  <td><input type='checkbox' {$checkboxState} onclick='toggleCopy(this, {$row['id']})'></td>
-              </tr>";
+                    <td>" . htmlspecialchars($row["fullname"]) . "</td> 
+                    <td>" . htmlspecialchars($row["bank_china"]) . "</td>
+                    <td>" . htmlspecialchars($row["exchange_rate"]) . "</td>
+                    <td>" . htmlspecialchars($row["transfer_fee"]) . "</td>
+                    <td>" . htmlspecialchars($row["amount_to_transfer"]) . "</td>
+                    <td>" . htmlspecialchars($row["recipient_name"]) . "</td>
+                    <td>" . htmlspecialchars($row["converted_amount"]) . "</td>
+                    <td>" . htmlspecialchars($row["bank_vietnam"]) . "</td>
+                    <td><input type='checkbox' {$checkboxState} onclick='toggleCopy(this, {$row['id']})'></td>
+                </tr>";
           }
 
           echo '</tbody></table>';
       }
-    ?>
+      ?>
+
 </div>
   
 <!-- Nếu chưa đăng nhập -->
@@ -186,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button id="toggleFormButton" class="btn btn-info ml-2">Đăng ký</button>
         </div>
     </div>
-	<script>
+    <script>
         var loginForm = document.getElementById('loginForm');
         var registerForm = document.getElementById('registerForm');
         var toggleFormButton = document.getElementById('toggleFormButton');
