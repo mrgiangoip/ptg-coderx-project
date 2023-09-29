@@ -85,8 +85,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="text" class="form-control" name="bank_name_vn" id="bank_name_vn" required>
                     </div>
                     <div class="col-md-2 form-group">
-                        <label for="amount_vn">Số tiền Việt chuyển:</label>
-                        <input type="number" class="form-control" name="amount_vn" id="amount_vn" required>
+                        <label for="amount_vn">Số tiền VN nhận:</label>
+                        <input type="number" class="form-control" name="amount_vn" id="amount_vn_input" required>
+                        <span id="formatted_amount_vn" style="font-weight: bold;"></span>
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="exchange_rate">Tỉ giá:</label>
@@ -107,6 +108,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <button type="submit" class="btn btn-primary">Chuyển</button>
             </form>
+            <script>
+              document.addEventListener("DOMContentLoaded", function() {
+                const recipientNameInput = document.getElementById("recipient_name");
+                const submitButton = document.querySelector("button[type='submit']");
+
+                recipientNameInput.addEventListener("blur", function() {
+                  const recipientName = recipientNameInput.value;
+
+                  // Thực hiện kiểm tra tên người nhận trong cơ sở dữ liệu SQL của bạn.
+                  // Dưới đây là một ví dụ đơn giản.
+                  const nameExistsInDatabase = checkIfNameExistsInDatabase(recipientName);
+
+                  if (nameExistsInDatabase) {
+                    const confirmation = confirm("Tên người nhận này đã tồn tại. Bạn có muốn tiếp tục?");
+
+                    if (!confirmation) {
+                      recipientNameInput.value = ""; // Xóa giá trị người nhận
+                    }
+                  }
+                });
+
+                // Hàm kiểm tra tên người nhận
+                function checkIfNameExistsInDatabase(name) {
+                  // Thực hiện truy vấn SQL để kiểm tra tên trong bảng của bạn.
+                  // Đây là nơi bạn cần thêm mã kiểm tra SQL thực tế.
+
+                  // Dưới đây là một ví dụ giả định:
+                  const xhr = new XMLHttpRequest();
+                  xhr.open("POST", "check_recipient.php", false);
+                  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                  xhr.send("recipient_name=" + name);
+
+                  if (xhr.status === 200) {
+                    return xhr.responseText === "exists";
+                  } else {
+                    return false;
+                  }
+                }
+              });
+            </script>
+            <script>
+                // Sử dụng JavaScript để định dạng số tiền VN nhận có dấu chấm khi nhập và hiển thị ngoài ô
+                document.getElementById('amount_vn_input').addEventListener('input', function (e) {
+                    // Lấy giá trị nhập vào
+                    let inputValue = e.target.value;
+
+                    // Định dạng giá trị với dấu chấm
+                    let formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+                    // Hiển thị giá trị đã định dạng bên ngoài ô
+                    document.getElementById('formatted_amount_vn').textContent = formattedValue;
+                });
+            </script>
 
     <?php
     if (isset($_SESSION['message'])) {
@@ -127,10 +181,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <tr>
                       <th>Người chuyển</th>
                       <th>NH VN</th>
-                      <th>Số tiền VN</th>
+                      <th>Số tiền VN nhận</th>
                       <th>Tỉ giá</th>
                       <th>Phí</th>
-                      <th>Số tiền Tệ nhận</th>
+                      <th>Số tiền Tệ ra</th>
                       <th>Người nhận</th>
                       <th>NH CN</th>
                       <th>Cho phép sao chép</th>

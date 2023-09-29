@@ -19,6 +19,7 @@ $conn->set_charset("utf8mb4");
 
 $message = "";
 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $bank_china = $_POST['bank_china'];
     $exchange_rate = $_POST['exchange_rate'];
@@ -51,6 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+
 ?>
 
 <!DOCTYPE html>
@@ -76,34 +78,92 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <a href="logout.php" class="btn btn-danger">Đăng xuất</a>
     <a href="money_transfer.php" class="btn btn-success">VN to CN</a>
     <form action="" method="post">
-        <div class="row">
-            <div class="col-md-2 form-group">
-                <label for="bank_china">Tên NH TQ:</label>
-                <input type="text" class="form-control" name="bank_china" id="bank_china" required>
-            </div>
-            <div class="col-md-2 form-group">
-                <label for="exchange_rate">Tỉ giá hiện tại:</label>
-                <input type="number" step="0.01" class="form-control" name="exchange_rate" id="exchange_rate" required>
-            </div>
-            <div class="col-md-2 form-group">
-                <label for="transfer_fee">Phí chuyển:</label>
-                <input type="number" step="0.01" class="form-control" name="transfer_fee" id="transfer_fee" required>
-            </div>
-            <div class="col-md-2 form-group">
-                <label for="amount_to_transfer">Số tiền cần chuyển:</label>
-                <input type="number" step="0.01" class="form-control" name="amount_to_transfer" id="amount_to_transfer" required>
-            </div>
-            <div class="col-md-2 form-group">
-                <label for="recipient_name">Tên người nhận tiền:</label>
-                <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
-            </div>
-            <div class="col-md-2 form-group">
-                <label for="bank_vietnam">Tên NH VN:</label>
-                <input type="text" class="form-control" name="bank_vietnam" id="bank_vietnam" required>
-            </div>
+      <div class="row">
+        <div class="col-md-2 form-group">
+          <label for="bank_china">Tên NH TQ:</label>
+          <input type="text" class="form-control" name="bank_china" id="bank_china" required>
         </div>
-        <button type="submit" class="btn btn-primary">Chuyển</button>
+        <div class="col-md-2 form-group">
+          <label for="exchange_rate">Tỉ giá:</label>
+          <input type="number" step="0.01" class="form-control" name="exchange_rate" id="exchange_rate" required>
+        </div>
+        <div class="col-md-2 form-group">
+          <label for="transfer_fee">Phí:</label>
+          <input type="number" step="0.01" class="form-control" name="transfer_fee" id="transfer_fee" required>
+        </div>
+        <div class="col-md-2 form-group">
+          <label for="amount_to_transfer">Số Tệ Vào:</label>
+          <input type="number" step="0.01" class="form-control" name="amount_to_transfer" id="amount_to_transfer" required>
+          <span id="formatted_amount" style="font-weight: bold;"></span>
+        </div>
+        <div class="col-md-2 form-group">
+          <label for="recipient_name">Tên người nhận tiền:</label>
+          <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
+        </div>
+        <div class="col-md-2 form-group">
+          <label for="bank_vietnam">Tên NH VN:</label>
+          <input type="text" class="form-control" name="bank_vietnam" id="bank_vietnam" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Chuyển</button>
     </form>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        const recipientNameInput = document.getElementById("recipient_name");
+        const submitButton = document.querySelector("button[type='submit']");
+
+        recipientNameInput.addEventListener("blur", function() {
+          const recipientName = recipientNameInput.value;
+
+          // Thực hiện kiểm tra tên người nhận trong cơ sở dữ liệu SQL của bạn.
+          // Dưới đây là một ví dụ đơn giản.
+          const nameExistsInDatabase = checkIfNameExistsInDatabase(recipientName);
+
+          if (nameExistsInDatabase) {
+            const confirmation = confirm("Tên người nhận này đã tồn tại. Bạn có muốn tiếp tục?");
+
+            if (!confirmation) {
+              recipientNameInput.value = ""; // Xóa giá trị người nhận
+            }
+          }
+        });
+
+        // Hàm kiểm tra tên người nhận
+        function checkIfNameExistsInDatabase(name) {
+          // Thực hiện truy vấn SQL để kiểm tra tên trong bảng của bạn.
+          // Đây là nơi bạn cần thêm mã kiểm tra SQL thực tế.
+
+          // Dưới đây là một ví dụ giả định:
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", "check_recipient2.php", false);
+          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+          xhr.send("recipient_name=" + name);
+
+          if (xhr.status === 200) {
+            return xhr.responseText === "exists";
+          } else {
+            return false;
+          }
+        }
+      });
+    </script>
+
+
+    <script>
+      // Sử dụng JavaScript để định dạng số Tệ có dấu chấm khi nhập và hiển thị ngoài ô
+      document.getElementById('amount_to_transfer').addEventListener('input', function (e) {
+        // Lấy giá trị nhập vào
+        let inputValue = e.target.value;
+
+        // Định dạng giá trị với dấu chấm
+        let formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // Hiển thị giá trị đã định dạng bên ngoài ô
+        document.getElementById('formatted_amount').textContent = formattedValue;
+      });
+    </script>
+
+
   
     <?php
       if (isset($_SESSION['message'])) {
@@ -124,9 +184,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       <th>NH TQ</th>
                       <th>Tỉ giá</th>
                       <th>Phí</th>
-                      <th>Số Tệ Chuyển</th>
+                      <th>Số Tệ Vào</th>
                       <th>Người nhận</th>
-                      <th>Số tiền Việt nhận</th>
+                      <th>Số tiền Việt Ra</th>
                       <th>NH VN</th>
                       <th>Cho phép sao chép</th>
                   </tr>
