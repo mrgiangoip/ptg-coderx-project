@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="text" class="form-control" name="bank_name_vn" id="bank_name_vn" required>
                     </div>
                     <div class="col-md-2 form-group">
-                        <label for="amount_vn">Số tiền VN nhận:</label>
+                        <label for="amount_vn">Số tiền VN vào:</label>
                         <input type="number" class="form-control" name="amount_vn" id="amount_vn_input" required>
                         <span id="formatted_amount_vn" style="font-weight: bold;"></span>
                     </div>
@@ -181,11 +181,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <tr>
                       <th>Người chuyển</th>
                       <th>NH VN</th>
-                      <th>Số tiền VN nhận</th>
+                      <th>Số tiền VN vào</th>
                       <th>Tỉ giá</th>
                       <th>Phí</th>
-                      <th>Số tiền Tệ ra</th>
                       <th>Người nhận</th>
+                      <th>Số tiền Tệ ra</th>
                       <th>NH CN</th>
                       <th>Cho phép sao chép</th>
                   </tr>
@@ -202,8 +202,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <td>" . htmlspecialchars($row["amount_vn"]) . "</td>
                   <td>" . htmlspecialchars($row["exchange_rate"]) . "</td>
                   <td>" . htmlspecialchars($row["fee"]) . "</td>
-                  <td>" . floor(($row["amount_vn"] / $row["exchange_rate"]) - $row["fee"]) . "</td>
                   <td>" . htmlspecialchars($row["recipient_name"]) . "</td>
+                  <td>" . floor(($row["amount_vn"] / $row["exchange_rate"]) - $row["fee"]) . "</td>
                   <td>" . htmlspecialchars($row["bank_name_cn"]) . "</td>
                   <td><input type='checkbox' {$checkboxState} onclick='toggleCopy(this, {$row['user_id']})'></td>
               </tr>";

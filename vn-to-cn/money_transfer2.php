@@ -84,17 +84,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <input type="text" class="form-control" name="bank_china" id="bank_china" required>
         </div>
         <div class="col-md-2 form-group">
+          <label for="amount_to_transfer">Số Tệ Vào:</label>
+          <input type="number" step="0.01" class="form-control" name="amount_to_transfer" id="amount_to_transfer" required>
+          <span id="formatted_amount" style="font-weight: bold;"></span>
+        </div>
+        <div class="col-md-2 form-group">
           <label for="exchange_rate">Tỉ giá:</label>
           <input type="number" step="0.01" class="form-control" name="exchange_rate" id="exchange_rate" required>
         </div>
         <div class="col-md-2 form-group">
           <label for="transfer_fee">Phí:</label>
           <input type="number" step="0.01" class="form-control" name="transfer_fee" id="transfer_fee" required>
-        </div>
-        <div class="col-md-2 form-group">
-          <label for="amount_to_transfer">Số Tệ Vào:</label>
-          <input type="number" step="0.01" class="form-control" name="amount_to_transfer" id="amount_to_transfer" required>
-          <span id="formatted_amount" style="font-weight: bold;"></span>
         </div>
         <div class="col-md-2 form-group">
           <label for="recipient_name">Tên người nhận tiền:</label>
@@ -182,9 +182,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <tr>
                       <th>Người chuyển</th>
                       <th>NH TQ</th>
+                      <th>Số Tệ Vào</th>
                       <th>Tỉ giá</th>
                       <th>Phí</th>
-                      <th>Số Tệ Vào</th>
                       <th>Người nhận</th>
                       <th>Số tiền Việt Ra</th>
                       <th>NH VN</th>
@@ -200,9 +200,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               echo "<tr class='{$canCopy}'>
                     <td>" . htmlspecialchars($row["fullname"]) . "</td> 
                     <td>" . htmlspecialchars($row["bank_china"]) . "</td>
+                    <td>" . htmlspecialchars($row["amount_to_transfer"]) . "</td>
                     <td>" . htmlspecialchars($row["exchange_rate"]) . "</td>
                     <td>" . htmlspecialchars($row["transfer_fee"]) . "</td>
-                    <td>" . htmlspecialchars($row["amount_to_transfer"]) . "</td>
                     <td>" . htmlspecialchars($row["recipient_name"]) . "</td>
                     <td>" . htmlspecialchars($row["converted_amount"]) . "</td>
                     <td>" . htmlspecialchars($row["bank_vietnam"]) . "</td>
