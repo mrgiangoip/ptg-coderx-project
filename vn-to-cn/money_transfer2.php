@@ -38,6 +38,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Truy vấn cơ sở dữ liệu để lấy số tiền hiện tại của ngân hàng VN
     $get_balance_query = "SELECT total_amount_vn FROM bank_balance_vn WHERE bank_name_vn = '$bank_vietnam'";
     $balance_result = $conn->query($get_balance_query);
+  
+    // Truy vấn danh sách ngân hàng CN
+      $sql = "SELECT bank_name_cn, total_amount_cn FROM bank_balance_cn";
+      $result = $conn->query($sql);
 
     if ($balance_result->num_rows > 0) {
         $row = $balance_result->fetch_assoc();
@@ -67,6 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+
 ?>
 
 <!DOCTYPE html>
@@ -86,56 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 <?php if (isset($_SESSION['user_id'])): ?>
-    <div class="container mt-5">
-        <h2>Danh Sách Ngân Hàng VN</h2>
-
-        <?php
-        // Truy vấn danh sách ngân hàng VN
-        $sql = "SELECT bank_name_vn, total_amount_vn FROM bank_balance_vn";
-        $result = $conn->query($sql);
-
-        if ($result->num_rows > 0) {
-            echo '<ul class="list-group">';
-            while ($row = $result->fetch_assoc()) {
-                // Sử dụng hàm number_format để định dạng số tiền với dấu chấm phân cách hàng nghìn
-                $formatted_amount = number_format($row['total_amount_vn']);
-                echo '<li class="col-md-2 list-group-item">' . $row['bank_name_vn'] . ': ' . $formatted_amount . '</li>';
-            }
-            echo '</ul>';
-        } else {
-            echo '<p>Không có ngân hàng nào trong cơ sở dữ liệu.</p>';
-        } ?>
-        <button id="toggleFormButton" class="btn">+</button>
-        <form id="bankForm" action="process_bank_vn.php" method="POST" style="display: none;">
-            <div class="col-md-2 form-group">
-                <label for="bank_name">Tên Ngân Hàng VN:</label>
-                <input type="text" class="form-control" name="bank_name" required>
-            </div>
-
-            <div class="col-md-2 form-group">
-                <label for="total_amount">Số Tiền:</label>
-                <input type="number" class="form-control" name="total_amount" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Thêm Ngân Hàng</button>
-        </form>
-    </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggleFormButton = document.getElementById("toggleFormButton");
-            const bankForm = document.getElementById("bankForm");
-
-            toggleFormButton.addEventListener("click", function () {
-                if (bankForm.style.display === "none") {
-                    bankForm.style.display = "block";
-                    toggleFormButton.textContent = "-";
-                } else {
-                    bankForm.style.display = "none";
-                    toggleFormButton.textContent = "+";
-                }
-            });
-        });
-    </script>
+    <?php require_once 'bank_list.php'; ?>
 <div class="container mt-5">
     <h2>Chuyển tiền từ Trung Quốc ra Việt Nam</h2>
     <!-- Thêm nút đăng xuất -->
