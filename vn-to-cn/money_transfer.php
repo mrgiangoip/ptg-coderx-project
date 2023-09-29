@@ -28,8 +28,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Cập nhật cơ sở dữ liệu với trạng thái checkbox
     $update_query = "UPDATE vn_to_cn_transfer SET checked = $checkbox_checked WHERE user_id = $user_id AND your_condition_here";
   
+     // Lấy giá trị từ form
     $bank_name_vn = $_POST['bank_name_vn'];
-    $amount_vn = $_POST['amount_vn'];
+    $amount_vn = floatval($_POST['amount_vn']); // Chuyển đổi giá trị thành kiểu số thực
+
+    // Kiểm tra xem tên NH VN và số tiền đã được nhập
+    if (!empty($bank_name_vn) && $amount_vn > 0) {
+        // Kiểm tra xem tên ngân hàng VN đã tồn tại trong cơ sở dữ liệu
+        $check_bank_query = "SELECT * FROM bank_balance_vn WHERE bank_name_vn = '$bank_name_vn'";
+        $result = $conn->query($check_bank_query);
+
+        if ($result->num_rows > 0) {
+            // Ngân hàng đã tồn tại trong cơ sở dữ liệu, cập nhật số tiền của ngân hàng
+            $row = $result->fetch_assoc();
+            $current_balance = $row['total_amount_vn'];
+            $new_balance = $current_balance + $amount_vn;
+
+            // Cập nhật số tiền của ngân hàng đó trong cơ sở dữ liệu
+            $update_balance_query = "UPDATE bank_balance_vn SET total_amount_vn = $new_balance WHERE bank_name_vn = '$bank_name_vn'";
+            if ($conn->query($update_balance_query) === TRUE) {
+                // Cập nhật thành công
+                $message = "Số tiền của ngân hàng đã được cập nhật thành công.";
+            } else {
+                // Cập nhật không thành công
+                $message = "Lỗi khi cập nhật số tiền của ngân hàng: " . $conn->error;
+            }
+        } else {
+            // Ngân hàng chưa tồn tại, thêm mới vào cơ sở dữ liệu
+            $insert_bank_query = "INSERT INTO bank_balance_vn (bank_name_vn, total_amount_vn) VALUES ('$bank_name_vn', $amount_vn)";
+            if ($conn->query($insert_bank_query) === TRUE) {
+                // Thêm mới thành công
+                $message = "Ngân hàng mới đã được thêm vào cơ sở dữ liệu.";
+            } else {
+                // Thêm mới không thành công
+                $message = "Lỗi khi thêm mới ngân hàng: " . $conn->error;
+            }
+        }
+    } else {
+        // Hiển thị thông báo nếu dữ liệu không hợp lệ
+        $message = "Vui lòng nhập tên NH VN và số tiền hợp lệ.";
+    }
+  
     $exchange_rate = $_POST['exchange_rate'];
     $fee = $_POST['fee'];
     $recipient_name = $_POST['recipient_name'];
@@ -73,6 +112,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <!-- Nếu đã đăng nhập -->
 <?php if (isset($_SESSION['user_id'])): ?>
+    <div class="container mt-5">
+        <h2>Danh Sách Ngân Hàng VN</h2>
+
+        <?php
+        // Truy vấn danh sách ngân hàng VN
+        $sql = "SELECT bank_name_vn, total_amount_vn FROM bank_balance_vn";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            echo '<ul class="list-group">';
+            while ($row = $result->fetch_assoc()) {
+                // Sử dụng hàm number_format để định dạng số tiền với dấu chấm phân cách hàng nghìn
+                $formatted_amount = number_format($row['total_amount_vn']);
+                echo '<li class="col-md-2 list-group-item">' . $row['bank_name_vn'] . ': ' . $formatted_amount . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            echo '<p>Không có ngân hàng nào trong cơ sở dữ liệu.</p>';
+        } ?>
+        <button id="toggleFormButton" class="btn">+</button>
+        <form id="bankForm" action="process_bank_vn.php" method="POST" style="display: none;">
+            <div class="col-md-2 form-group">
+                <label for="bank_name">Tên Ngân Hàng VN:</label>
+                <input type="text" class="form-control" name="bank_name" required>
+            </div>
+
+            <div class="col-md-2 form-group">
+                <label for="total_amount">Số Tiền:</label>
+                <input type="number" class="form-control" name="total_amount" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Thêm Ngân Hàng</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleFormButton = document.getElementById("toggleFormButton");
+            const bankForm = document.getElementById("bankForm");
+
+            toggleFormButton.addEventListener("click", function () {
+                if (bankForm.style.display === "none") {
+                    bankForm.style.display = "block";
+                    toggleFormButton.textContent = "-";
+                } else {
+                    bankForm.style.display = "none";
+                    toggleFormButton.textContent = "+";
+                }
+            });
+        });
+    </script>
     <div class="container mt-5">
     <h2>Chuyển tiền từ Việt Nam sang Trung Quốc</h2>
       <!-- Thêm nút đăng xuất -->

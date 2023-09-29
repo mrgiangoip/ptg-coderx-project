@@ -28,21 +28,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $recipient_name = $_POST['recipient_name'];
     $converted_amount = ($amount_to_transfer * $exchange_rate) - $transfer_fee;
     $bank_vietnam = $_POST['bank_vietnam'];
+    
     // Lấy giá trị của checkbox
     $checkbox_checked = isset($_POST['checkbox']) ? 1 : 0;
 
     // Lấy user_id của người dùng hiện tại (phải được xác định trước đó)
     $user_id = $_SESSION['user_id'];
 
-    // Cập nhật cơ sở dữ liệu với trạng thái checkbox
-    $update_query = "UPDATE cn_to_vn_transfer SET checked = $checkbox_checked WHERE user_id = $user_id AND your_condition_here";
+    // Truy vấn cơ sở dữ liệu để lấy số tiền hiện tại của ngân hàng VN
+    $get_balance_query = "SELECT total_amount_vn FROM bank_balance_vn WHERE bank_name_vn = '$bank_vietnam'";
+    $balance_result = $conn->query($get_balance_query);
 
+    if ($balance_result->num_rows > 0) {
+        $row = $balance_result->fetch_assoc();
+        $current_balance_vn = $row['total_amount_vn'];
+        
+        // Trừ số tiền Việt Ra từ số tiền hiện tại của ngân hàng VN
+        $new_balance_vn = $current_balance_vn - $converted_amount;
+
+        // Cập nhật số tiền mới của ngân hàng VN vào cơ sở dữ liệu
+        $update_balance_query = "UPDATE bank_balance_vn SET total_amount_vn = $new_balance_vn WHERE bank_name_vn = '$bank_vietnam'";
+        $conn->query($update_balance_query);
+    }
+    
+    // Tiếp tục với việc chèn dữ liệu mới vào bảng cn_to_vn_transfer
     $sql = "INSERT INTO cn_to_vn_transfer (bank_china, exchange_rate, transfer_fee, amount_to_transfer, recipient_name, converted_amount, bank_vietnam, checkbox_checked, user_id) VALUES ('$bank_china', $exchange_rate, $transfer_fee, $amount_to_transfer, '$recipient_name', $converted_amount, '$bank_vietnam', $checkbox_checked, $user_id)";
 
     if ($conn->query($sql) === TRUE) {
         $message = "Dữ liệu đã được ghi thành công!";
-        $_SESSION['message'] = $message;  // Lưu thông điệp vào phiên để hiển thị sau khi chuyển hướng
-        header("Location: money_transfer2.php");  // Thay "your_current_page.php" bằng tên trang hiện tại của bạn
+        $_SESSION['message'] = $message;
+        header("Location: money_transfer2.php");
         exit;
     } else {
         $message = "Lỗi: " . $conn->error;
@@ -51,7 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 }
-
 
 ?>
 
@@ -72,6 +86,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 <?php if (isset($_SESSION['user_id'])): ?>
+    <div class="container mt-5">
+        <h2>Danh Sách Ngân Hàng VN</h2>
+
+        <?php
+        // Truy vấn danh sách ngân hàng VN
+        $sql = "SELECT bank_name_vn, total_amount_vn FROM bank_balance_vn";
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            echo '<ul class="list-group">';
+            while ($row = $result->fetch_assoc()) {
+                // Sử dụng hàm number_format để định dạng số tiền với dấu chấm phân cách hàng nghìn
+                $formatted_amount = number_format($row['total_amount_vn']);
+                echo '<li class="col-md-2 list-group-item">' . $row['bank_name_vn'] . ': ' . $formatted_amount . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            echo '<p>Không có ngân hàng nào trong cơ sở dữ liệu.</p>';
+        } ?>
+        <button id="toggleFormButton" class="btn">+</button>
+        <form id="bankForm" action="process_bank_vn.php" method="POST" style="display: none;">
+            <div class="col-md-2 form-group">
+                <label for="bank_name">Tên Ngân Hàng VN:</label>
+                <input type="text" class="form-control" name="bank_name" required>
+            </div>
+
+            <div class="col-md-2 form-group">
+                <label for="total_amount">Số Tiền:</label>
+                <input type="number" class="form-control" name="total_amount" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Thêm Ngân Hàng</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleFormButton = document.getElementById("toggleFormButton");
+            const bankForm = document.getElementById("bankForm");
+
+            toggleFormButton.addEventListener("click", function () {
+                if (bankForm.style.display === "none") {
+                    bankForm.style.display = "block";
+                    toggleFormButton.textContent = "-";
+                } else {
+                    bankForm.style.display = "none";
+                    toggleFormButton.textContent = "+";
+                }
+            });
+        });
+    </script>
 <div class="container mt-5">
     <h2>Chuyển tiền từ Trung Quốc ra Việt Nam</h2>
     <!-- Thêm nút đăng xuất -->
