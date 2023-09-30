@@ -19,6 +19,12 @@ $conn->set_charset("utf8mb4");
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $amount_vn = $_POST['amount_vn']; // Chuyển đổi giá trị thành kiểu số thực
+    $exchange_rate = $_POST['exchange_rate'];
+    $fee = $_POST['fee'];
+    $recipient_name = $_POST['recipient_name'];
+    $bank_name_cn = $_POST['bank_name_cn'];
+    $amount_cn = floor(($amount_vn / $exchange_rate) - $fee);
   // Lấy giá trị của checkbox
     $checkbox_checked = isset($_POST['checkbox']) ? 1 : 0;
 
@@ -30,10 +36,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   
      // Lấy giá trị từ form
     $bank_name_vn = $_POST['bank_name_vn'];
-    $amount_vn = floatval($_POST['amount_vn']); // Chuyển đổi giá trị thành kiểu số thực
-
+    
     // Kiểm tra xem tên NH VN và số tiền đã được nhập
     if (!empty($bank_name_vn) && $amount_vn > 0) {
+      
+        // xử lý việt vào
         // Kiểm tra xem tên ngân hàng VN đã tồn tại trong cơ sở dữ liệu
         $check_bank_query = "SELECT * FROM bank_balance_vn WHERE bank_name_vn = '$bank_name_vn'";
         $result = $conn->query($check_bank_query);
@@ -53,6 +60,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Cập nhật không thành công
                 $message = "Lỗi khi cập nhật số tiền của ngân hàng: " . $conn->error;
             }
+          //Kết thúc xử lý Việt vào
+          
+          // xử lý Tệ ra
+          $check_bank_cn_query = "SELECT total_amount_cn FROM bank_balance_cn WHERE bank_name_cn = '$bank_name_cn'";
+          $result_cn = $conn->query($check_bank_cn_query);
+
+          if ($result_cn->num_rows > 0) {
+              $row_cn = $result_cn->fetch_assoc();
+              $current_balance_cn = $row_cn['total_amount_cn'];
+
+              // Tính số tiền mới sau khi đã giảm
+              $new_balance_cn = $current_balance_cn - $amount_cn;
+
+              if ($new_balance_cn >= 0) { // Chỉ cập nhật nếu số dư còn dương
+                  // Cập nhật số tiền mới vào cơ sở dữ liệu
+                  $update_balance_cn_query = "UPDATE bank_balance_cn SET total_amount_cn = $new_balance_cn WHERE bank_name_cn = '$bank_name_cn'";
+                  if ($conn->query($update_balance_cn_query) !== TRUE) {
+                      $message = "Lỗi khi cập nhật số tiền của ngân hàng TQ: " . $conn->error;
+                  }
+              } else {
+                  $message = "Số tiền muốn chuyển vượt quá số dư hiện có của ngân hàng TQ.";
+              }
+          } else {
+              $message = "Ngân hàng TQ không tồn tại.";
+          }
+          //Kết thúc xử lý Tệ ra
+          
         } else {
             // Ngân hàng chưa tồn tại, thêm mới vào cơ sở dữ liệu
             $insert_bank_query = "INSERT INTO bank_balance_vn (bank_name_vn, total_amount_vn) VALUES ('$bank_name_vn', $amount_vn)";
@@ -68,14 +102,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Hiển thị thông báo nếu dữ liệu không hợp lệ
         $message = "Vui lòng nhập tên NH VN và số tiền hợp lệ.";
     }
-  
-    $exchange_rate = $_POST['exchange_rate'];
-    $fee = $_POST['fee'];
-    $recipient_name = $_POST['recipient_name'];
-    $bank_name_cn = $_POST['bank_name_cn'];
-
-       $sql = "INSERT INTO vn_to_cn_transfer (user_id, bank_name_vn, amount_vn, exchange_rate, fee, recipient_name, bank_name_cn) 
-            VALUES ($user_id, '$bank_name_vn', $amount_vn, $exchange_rate, $fee, '$recipient_name', '$bank_name_cn')";
+       $sql = "INSERT INTO vn_to_cn_transfer (user_id, bank_name_vn, amount_vn, exchange_rate, fee, recipient_name, bank_name_cn, amount_cn) 
+        VALUES ($user_id, '$bank_name_vn', $amount_vn, $exchange_rate, $fee, '$recipient_name', '$bank_name_cn', $amount_cn)";
 
     if ($conn->query($sql) === TRUE) {
         $message = "Dữ liệu đã được ghi thành công!";
@@ -243,7 +271,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <td>" . htmlspecialchars($row["exchange_rate"]) . "</td>
                   <td>" . htmlspecialchars($row["fee"]) . "</td>
                   <td>" . htmlspecialchars($row["recipient_name"]) . "</td>
-                  <td>" . floor(($row["amount_vn"] / $row["exchange_rate"]) - $row["fee"]) . "</td>
+                  <td>" . htmlspecialchars($row["amount_cn"]) . "</td>
                   <td>" . htmlspecialchars($row["bank_name_cn"]) . "</td>
                   <td><input type='checkbox' {$checkboxState} onclick='toggleCopy(this, {$row['user_id']})'></td>
               </tr>";

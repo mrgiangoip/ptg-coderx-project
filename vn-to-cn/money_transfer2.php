@@ -38,7 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Truy vấn cơ sở dữ liệu để lấy số tiền hiện tại của ngân hàng VN
     $get_balance_query = "SELECT total_amount_vn FROM bank_balance_vn WHERE bank_name_vn = '$bank_vietnam'";
     $balance_result = $conn->query($get_balance_query);
-  
+    
+    // xử lý việt ra
     // Truy vấn danh sách ngân hàng CN
       $sql = "SELECT bank_name_cn, total_amount_cn FROM bank_balance_cn";
       $result = $conn->query($sql);
@@ -54,9 +55,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $update_balance_query = "UPDATE bank_balance_vn SET total_amount_vn = $new_balance_vn WHERE bank_name_vn = '$bank_vietnam'";
         $conn->query($update_balance_query);
     }
+    // kết thúc xử lý việt ra
     
+    // Xử lý tệ vào
+    // Lấy số tiền nhập vào từ form
+      $bank_name_cn = $_POST['bank_china'];
+
+      // Truy vấn cơ sở dữ liệu để lấy số tiền hiện tại của NH TQ
+      $get_balance_query_cn = "SELECT total_amount_cn FROM bank_balance_cn WHERE bank_name_cn = '$bank_name_cn'";
+      $balance_result_cn = $conn->query($get_balance_query_cn);
+
+      if ($balance_result_cn->num_rows > 0) {
+          $row_cn = $balance_result_cn->fetch_assoc();
+          $current_balance_cn = $row_cn['total_amount_cn'];
+
+          // Tính toán số tiền mới cho NH TQ
+          $new_balance_cn = $current_balance_cn + $amount_to_transfer;
+
+          // Cập nhật số tiền mới vào cơ sở dữ liệu bank_balance_cn
+          $update_balance_query_cn = "UPDATE bank_balance_cn SET total_amount_cn = $new_balance_cn WHERE bank_name_cn = '$bank_name_cn'";
+          $conn->query($update_balance_query_cn);
+      }
+      // kết thúc xử lý tệ vào
     // Tiếp tục với việc chèn dữ liệu mới vào bảng cn_to_vn_transfer
-    $sql = "INSERT INTO cn_to_vn_transfer (bank_china, exchange_rate, transfer_fee, amount_to_transfer, recipient_name, converted_amount, bank_vietnam, checkbox_checked, user_id) VALUES ('$bank_china', $exchange_rate, $transfer_fee, $amount_to_transfer, '$recipient_name', $converted_amount, '$bank_vietnam', $checkbox_checked, $user_id)";
+    $sql = "INSERT INTO cn_to_vn_transfer (bank_china, exchange_rate, transfer_fee, amount_to_transfer, recipient_name, converted_amount, bank_vietnam, checkbox_checked, user_id) 
+    VALUES ('$bank_china', $exchange_rate, $transfer_fee, $amount_to_transfer, '$recipient_name', $converted_amount, '$bank_vietnam', $checkbox_checked, $user_id)";
 
     if ($conn->query($sql) === TRUE) {
         $message = "Dữ liệu đã được ghi thành công!";
@@ -224,7 +247,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <td>" . htmlspecialchars($row["exchange_rate"]) . "</td>
                     <td>" . htmlspecialchars($row["transfer_fee"]) . "</td>
                     <td>" . htmlspecialchars($row["recipient_name"]) . "</td>
-                    <td>" . htmlspecialchars($row["converted_amount"]) . "</td>
+                    <td>" . $row["converted_amount"] . "</td>
                     <td>" . htmlspecialchars($row["bank_vietnam"]) . "</td>
                     <td><input type='checkbox' {$checkboxState} onclick='toggleCopy(this, {$row['id']})'></td>
                 </tr>";
