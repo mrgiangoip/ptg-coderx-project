@@ -92,6 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: money_transfer2.php");
         exit;
     }
+    
 }
 
 
@@ -258,6 +259,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       ?>
 
 </div>
+    
+   <?php require_once 'transfer_inhouse.php'; ?>
   
 <!-- Nếu chưa đăng nhập -->
 <?php else: ?>

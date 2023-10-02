@@ -36,11 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   
      // Lấy giá trị từ form
     $bank_name_vn = $_POST['bank_name_vn'];
-    
+
     // Kiểm tra xem tên NH VN và số tiền đã được nhập
     if (!empty($bank_name_vn) && $amount_vn > 0) {
-      
-        // xử lý việt vào
         // Kiểm tra xem tên ngân hàng VN đã tồn tại trong cơ sở dữ liệu
         $check_bank_query = "SELECT * FROM bank_balance_vn WHERE bank_name_vn = '$bank_name_vn'";
         $result = $conn->query($check_bank_query);
@@ -60,9 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Cập nhật không thành công
                 $message = "Lỗi khi cập nhật số tiền của ngân hàng: " . $conn->error;
             }
-          //Kết thúc xử lý Việt vào
           
-          // xử lý Tệ ra
           $check_bank_cn_query = "SELECT total_amount_cn FROM bank_balance_cn WHERE bank_name_cn = '$bank_name_cn'";
           $result_cn = $conn->query($check_bank_cn_query);
 
@@ -85,7 +81,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           } else {
               $message = "Ngân hàng TQ không tồn tại.";
           }
-          //Kết thúc xử lý Tệ ra
           
         } else {
             // Ngân hàng chưa tồn tại, thêm mới vào cơ sở dữ liệu
@@ -282,7 +277,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
     ?>
 </div>
-
+    
+   <?php require_once 'transfer_inhouse.php'; ?>
+  
 <!-- Nếu chưa đăng nhập -->
 <?php else: ?>
   
