@@ -11,6 +11,9 @@
     $row1 = $result1->fetch_assoc();
     $total_vn = $row1['total_converted_amount'];
 
+    //Vn Còn lại
+    $remainingVN = $total_vn_to_cn_vn - $total_vn;
+
     // Tính tổng tiền CN vào
     $sql2 = "SELECT SUM(amount_to_transfer) as total_cn_amount FROM cn_to_vn_transfer";
     $result2 = $conn->query($sql2);
@@ -23,6 +26,8 @@
     $row2 = $result2->fetch_assoc();
     $total_vn_to_cn_cn = $row2['total_amount_cn'];
     
+    //Cn Còn lại
+    $remainingCN = $total_cn - $total_vn_to_cn_cn;
     ?>
     <style>
     .slide-container {
@@ -104,6 +109,15 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="col-md-3">
+                <div class="card text-white bg-info mb-3">
+                    <div class="card-header">Tổng Việt còn lại</div>
+                    <div class="card-body">
+                        <h5 class="card-title"><?= number_format($remainingVN) ?> VND</h5>
+                    </div>
+                </div>
+            </div>
         </div> <!-- end of .row -->
     </div>
     <div class="container mt-5">
@@ -167,6 +181,15 @@
                       <div class="card-header">Tổng Tệ ra</div>
                       <div class="card-body">
                           <h5 class="card-title"><?= number_format($total_vn_to_cn_cn) ?> CNY</h5>
+                      </div>
+                  </div>
+              </div>
+            
+              <div class="col-md-3">
+                  <div class="card text-white bg-success mb-3">
+                      <div class="card-header">Tệ còn:</div>
+                      <div class="card-body">
+                          <h5 class="card-title"><?= number_format($remainingCN) ?> CNY</h5>
                       </div>
                   </div>
               </div>
