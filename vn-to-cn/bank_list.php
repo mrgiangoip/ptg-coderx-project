@@ -22,6 +22,7 @@
     $result2 = $conn->query($sql2);
     $row2 = $result2->fetch_assoc();
     $total_vn_to_cn_cn = $row2['total_amount_cn'];
+    
     ?>
     <style>
     .slide-container {
@@ -47,6 +48,18 @@
                 $sql = "SELECT bank_name_vn, total_amount_vn FROM bank_balance_vn";
                 $result = $conn->query($sql);
 
+                $sqlsumvn = "SELECT SUM(total_amount_vn) AS total_money FROM bank_balance_vn";
+                $result4 = $conn->query($sqlsumvn);
+
+                if ($result4->num_rows > 0) {
+                    // output data of each row
+                    while($row4 = $result4->fetch_assoc()) {
+                        echo '<li class="list-group-item">' .'Tổng tiền: ' . number_format($row4['total_money']) .'</li>';
+                    }
+                } else {
+                    echo "0 results";
+                }
+
                 if ($result->num_rows > 0) {
                     echo '<ul class="list-group mb-4">';
                     while ($row = $result->fetch_assoc()) {
@@ -58,7 +71,7 @@
                 } else {
                     echo '<p>Không có ngân hàng nào trong cơ sở dữ liệu.</p>';
                 } ?>
-
+                
                 <button id="toggleFormButton" class="btn btn-secondary mb-2">+</button>
 
                 <form id="bankForm" action="process_bank_vn.php" method="POST" style="display: none;">
@@ -100,6 +113,19 @@
                   <?php
                   $sql2 = "SELECT bank_name_cn, total_amount_cn FROM bank_balance_cn";
                   $result2 = $conn->query($sql2);
+
+                  $sqlsumcn = "SELECT SUM(total_amount_cn) AS total_money FROM bank_balance_cn";
+                  $result3 = $conn->query($sqlsumcn);
+
+                  if ($result3->num_rows > 0) {
+                      // output data of each row
+                      while($row3 = $result3->fetch_assoc()) {
+                          echo '<li class="list-group-item">'. 'Tổng tiền: ' . number_format($row3["total_money"]) . '</li>';
+                      }
+                  } else {
+                      echo "0 results";
+                  } 
+
                   if ($result2->num_rows > 0) {
                       echo '<ul class="list-group mb-4">';
                       while ($row2 = $result2->fetch_assoc()) {
@@ -111,7 +137,6 @@
                       echo '<p class="mb-4">Không có ngân hàng nào trong cơ sở dữ liệu.</p>';
                   }
                   ?>
-
                   <!-- Form để thêm ngân hàng CN mới -->
                   <button id="toggleFormButton2" class="btn btn-secondary mb-2">+</button>
 
@@ -127,6 +152,15 @@
                       <button type="submit" class="btn btn-primary mt-2">Thêm</button>
                   </form>
               </div>
+            
+              <div class="col-md-3">
+                  <div class="card text-white bg-danger mb-3">
+                      <div class="card-header">Tổng Tệ vào</div>
+                      <div class="card-body">
+                          <h5 class="card-title"><?= number_format($total_cn) ?> CNY</h5>
+                      </div>
+                  </div>
+              </div>
 
               <div class="col-md-3">
                   <div class="card text-white bg-warning mb-3">
@@ -137,14 +171,6 @@
                   </div>
               </div>
 
-              <div class="col-md-3">
-                  <div class="card text-white bg-danger mb-3">
-                      <div class="card-header">Tổng Tệ vào</div>
-                      <div class="card-body">
-                          <h5 class="card-title"><?= number_format($total_cn) ?> CNY</h5>
-                      </div>
-                  </div>
-              </div>
           </div> <!-- end of .row -->
       </div> <!-- end of .container -->
     </div>
