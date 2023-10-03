@@ -1,33 +1,55 @@
     <?php
     // Tính tổng tiền Việt vào
-    $sql1 = "SELECT SUM(amount_vn) as total_amount_vn FROM vn_to_cn_transfer";
-    $result1 = $conn->query($sql1);
-    $row1 = $result1->fetch_assoc();
-    $total_vn_to_cn_vn = $row1['total_amount_vn'];
+    $query_vn_vao = "SELECT bank_name_vn, SUM(amount_vn) as total_amount_vn FROM vn_to_cn_transfer GROUP BY bank_name_vn";
+    $result_vn_vao = $conn->query($query_vn_vao);
 
     // Tính tổng tiền Việt ra
-    $sql1 = "SELECT SUM(converted_amount) as total_converted_amount FROM cn_to_vn_transfer";
-    $result1 = $conn->query($sql1);
-    $row1 = $result1->fetch_assoc();
-    $total_vn = $row1['total_converted_amount'];
-
-    //Vn Còn lại
-    $remainingVN = $total_vn_to_cn_vn - $total_vn;
+    $sql_vn_ra = "SELECT bank_vietnam, SUM(converted_amount) as total_vn FROM cn_to_vn_transfer GROUP BY bank_vietnam";
+    $result_vn_ra = $conn->query($sql_vn_ra);
 
     // Tính tổng tiền CN vào
-    $sql2 = "SELECT SUM(amount_to_transfer) as total_cn_amount FROM cn_to_vn_transfer";
-    $result2 = $conn->query($sql2);
-    $row2 = $result2->fetch_assoc();
-    $total_cn = $row2['total_cn_amount'];
+    $sql_cn_vao = "SELECT bank_china, SUM(amount_to_transfer) as total_cn FROM cn_to_vn_transfer GROUP BY bank_china";
+    $result_cn_vao = $conn->query($sql_cn_vao);
 
     // Tính tổng tiền CN ra
-    $sql2 = "SELECT SUM(amount_cn) as total_amount_cn FROM vn_to_cn_transfer";
-    $result2 = $conn->query($sql2);
-    $row2 = $result2->fetch_assoc();
-    $total_vn_to_cn_cn = $row2['total_amount_cn'];
-    
-    //Cn Còn lại
-    $remainingCN = $total_cn - $total_vn_to_cn_cn;
+    $query_cn_ra = "SELECT bank_name_cn, SUM(amount_cn) as total_amount_cn FROM vn_to_cn_transfer GROUP BY bank_name_cn";
+    $result_cn_ra = $conn->query($query_cn_ra);
+    if (isset($_POST['update'])) {
+      while ($row_vn_vao = $result_vn_vao->fetch_assoc()) {
+          $bank_name_vn = $row_vn_vao['bank_name_vn'];
+          $total_vn_vao = $row_vn_vao['total_amount_vn'];
+
+          $total_vn_ra = 0;
+          while ($row_vn_ra = $result_vn_ra->fetch_assoc()) {
+              if ($bank_name_vn == $row_vn_ra['bank_vietnam']) {
+                  $total_vn_ra = $row_vn_ra['total_vn'];
+                  break;
+              }
+          }
+
+          $new_balance_vn = $total_vn_vao - $total_vn_ra;
+          $update_sql_vn = "UPDATE bank_balance_vn SET total_amount_vn = total_amount_vn + $new_balance_vn WHERE bank_name_vn = '$bank_name_vn'";
+          $conn->query($update_sql_vn);
+      }
+
+      while ($row_cn_vao = $result_cn_vao->fetch_assoc()) {
+          $bank_name_cn = $row_cn_vao['bank_china'];
+          $total_cn_vao = $row_cn_vao['total_cn'];
+
+          $total_cn_ra = 0;
+          while ($row_cn_ra = $result_cn_ra->fetch_assoc()) {
+              if ($bank_name_cn == $row_cn_ra['bank_name_cn']) {
+                  $total_cn_ra = $row_cn_ra['total_amount_cn'];
+                  break;
+              }
+          }
+
+          $new_balance_cn = $total_cn_vao - $total_cn_ra;
+          $update_sql_cn = "UPDATE bank_balance_cn SET total_amount_cn = total_amount_cn + $new_balance_cn WHERE bank_name_cn = '$bank_name_cn'";
+          $conn->query($update_sql_cn);
+      }
+    }
+
     ?>
     <style>
     .slide-container {
@@ -42,160 +64,156 @@
     }
     </style>
 <div class="container mt-5">
-    <button id="toggleDayButton" class="btn btn-warning mb-3">Đầu và cuối ngày</button>
-    <div id="dayContent" style="display: none;">
-    <div class="container mt-5">
-        <h2 class="mb-4">NH VN</h2>
-        <div class="row">
-            <div class="col-md-3">
-                <?php
-                // Truy vấn danh sách ngân hàng VN
-                $sql = "SELECT bank_name_vn, total_amount_vn FROM bank_balance_vn";
-                $result = $conn->query($sql);
+      <button id="toggleDayButton" class="btn btn-warning mb-3">Đầu và cuối ngày</button>
+      <div id="dayContent" style="display: none;">
+          <div class="container mt-5">
+      <h2 class="mb-4">NH VN</h2>
 
-                $sqlsumvn = "SELECT SUM(total_amount_vn) AS total_money FROM bank_balance_vn";
-                $result4 = $conn->query($sqlsumvn);
+      <table class="table table-bordered table-striped">
+          <thead>
+              <tr>
+                  <th>Tên NH</th>
+                  <th>Tổng</th>
+                  <th>Việt Vào</th>
+                  <th>Việt Ra</th>
+              </tr>
+          </thead>
+          <tbody>
+              <?php
+              $sql = "SELECT bank_name_vn, total_amount_vn FROM bank_balance_vn";
+              $result = $conn->query($sql);
+              if ($result->num_rows > 0) {
+                  while ($row = $result->fetch_assoc()) {
+                      $bank_name = $row['bank_name_vn'];
+                      $balance = number_format($row['total_amount_vn']);
 
-                if ($result4->num_rows > 0) {
-                    // output data of each row
-                    while($row4 = $result4->fetch_assoc()) {
-                        echo '<li class="list-group-item">' .'Tổng tiền: ' . number_format($row4['total_money']) .'</li>';
-                    }
-                } else {
-                    echo "0 results";
-                }
+                      // Get Money In for this bank
+                      $money_in = 0;
+                      $result_vn_vao->data_seek(0); // Reset result pointer
+                      while ($row_vao = $result_vn_vao->fetch_assoc()) {
+                          if ($row_vao['bank_name_vn'] == $bank_name) {
+                              $money_in = number_format($row_vao['total_amount_vn']);
+                              break;
+                          }
+                      }
 
-                if ($result->num_rows > 0) {
-                    echo '<ul class="list-group mb-4">';
-                    while ($row = $result->fetch_assoc()) {
-                        // Sử dụng hàm number_format để định dạng số tiền với dấu chấm phân cách hàng nghìn
-                        $formatted_amount = number_format($row['total_amount_vn']);
-                        echo '<li class="list-group-item">' . $row['bank_name_vn'] . ': ' . $formatted_amount .'</li>';
-                    }
-                    echo '</ul>';
-                } else {
-                    echo '<p>Không có ngân hàng nào trong cơ sở dữ liệu.</p>';
-                } ?>
-                
-                <button id="toggleFormButton" class="btn btn-secondary mb-2">+</button>
+                      // Get Money Out for this bank
+                      $money_out = 0;
+                      $result_vn_ra->data_seek(0); // Reset result pointer
+                      while ($row_ra = $result_vn_ra->fetch_assoc()) {
+                          if ($row_ra['bank_vietnam'] == $bank_name) {
+                              $money_out = number_format($row_ra['total_vn']);
+                              break;
+                          }
+                      }
 
-                <form id="bankForm" action="process_bank_vn.php" method="POST" style="display: none;">
-                    <div class="form-group">
-                        <label for="bank_name">NH VN:</label>
-                        <input type="text" class="form-control" name="bank_name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="total_amount">Số Tiền:</label>
-                        <input type="number" class="form-control" name="total_amount" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Thêm</button>
-                </form>
+                      echo "<tr>";
+                      echo "<td>$bank_name</td>";
+                      echo "<td>$balance</td>";
+                      echo "<td>$money_in</td>";
+                      echo "<td>$money_out</td>";
+                      echo "</tr>";
+                  }
+              } else {
+                  echo '<tr><td colspan="4">Không có ngân hàng nào trong cơ sở dữ liệu.</td></tr>';
+              }
+              ?>
+          </tbody>
+      </table>
+      <div class="col-md-4">
+        <button id="toggleFormButton" class="btn btn-secondary mb-2">+</button>
+          <div id="bankForm" class="card" style="display: none;">
+            <div class="card-body">
+              <form action="process_bank_vn.php" method="POST">
+                  <div class="form-group">
+                      <label for="bank_name">NH VN:</label>
+                      <input type="text" class="form-control" name="bank_name" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="total_amount">Số Tiền:</label>
+                      <input type="number" class="form-control" name="total_amount" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-2">Thêm</button>
+              </form>
             </div>
-
-            <div class="col-md-3">
-                <div class="card text-white bg-success mb-3">
-                    <div class="card-header">Tổng Việt vào</div>
-                    <div class="card-body">
-                        <h5 class="card-title"><?= number_format($total_vn_to_cn_vn) ?> VND</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-white bg-primary mb-3">
-                    <div class="card-header">Tổng Việt ra</div>
-                    <div class="card-body">
-                        <h5 class="card-title"><?= number_format($total_vn) ?> VND</h5>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-3">
-                <div class="card text-white bg-info mb-3">
-                    <div class="card-header">Tổng Việt còn lại</div>
-                    <div class="card-body">
-                        <h5 class="card-title"><?= number_format($remainingVN) ?> VND</h5>
-                    </div>
-                </div>
-            </div>
-        </div> <!-- end of .row -->
+          </div> 
+      </div>
     </div>
+
     <div class="container mt-5">
-          <h2 class="mb-4">NH CN</h2>
-          <div class="row">
-              <div class="col-md-3">
+        <h2 class="mb-4">NH CN</h2>
+
+          <table class="table table-bordered table-striped">
+              <thead>
+                  <tr>
+                      <th>Tên NH</th>
+                      <th>Tổng</th>
+                      <th>Tệ Vào</th>
+                      <th>Tệ Ra</th>
+                  </tr>
+              </thead>
+              <tbody>
                   <?php
                   $sql2 = "SELECT bank_name_cn, total_amount_cn FROM bank_balance_cn";
                   $result2 = $conn->query($sql2);
 
-                  $sqlsumcn = "SELECT SUM(total_amount_cn) AS total_money FROM bank_balance_cn";
-                  $result3 = $conn->query($sqlsumcn);
-
-                  if ($result3->num_rows > 0) {
-                      // output data of each row
-                      while($row3 = $result3->fetch_assoc()) {
-                          echo '<li class="list-group-item">'. 'Tổng tiền: ' . number_format($row3["total_money"]) . '</li>';
-                      }
-                  } else {
-                      echo "0 results";
-                  } 
-
                   if ($result2->num_rows > 0) {
-                      echo '<ul class="list-group mb-4">';
                       while ($row2 = $result2->fetch_assoc()) {
-                          $formatted_amount = number_format($row2['total_amount_cn']);
-                          echo '<li class="list-group-item">' . $row2['bank_name_cn'] . ': ' . $formatted_amount . '</li>';
+                          $bank_name_cn = $row2['bank_name_cn'];
+                          $balance_cn = number_format($row2['total_amount_cn']);
+
+                          // Get Money In for this bank
+                          $money_in_cn = 0;
+                          $result_cn_vao->data_seek(0); // Reset result pointer
+                          while ($row_vao = $result_cn_vao->fetch_assoc()) {
+                              if ($row_vao['bank_china'] == $bank_name_cn) {
+                                  $money_in_cn = number_format($row_vao['total_cn']);
+                                  break;
+                              }
+                          }
+
+                          // Get Money Out for this bank
+                          $money_out_cn = 0;
+                          $result_cn_ra->data_seek(0); // Reset result pointer
+                          while ($row_ra = $result_cn_ra->fetch_assoc()) {
+                              if ($row_ra['bank_name_cn'] == $bank_name_cn) {
+                                  $money_out_cn = number_format($row_ra['total_amount_cn']);
+                                  break;
+                              }
+                          }
+
+                          echo "<tr>";
+                          echo "<td>$bank_name_cn</td>";
+                          echo "<td>$balance_cn</td>";
+                          echo "<td>$money_in_cn</td>";
+                          echo "<td>$money_out_cn</td>";
+                          echo "</tr>";
                       }
-                      echo '</ul>';
                   } else {
-                      echo '<p class="mb-4">Không có ngân hàng nào trong cơ sở dữ liệu.</p>';
+                      echo '<tr><td colspan="4">Không có ngân hàng nào trong cơ sở dữ liệu.</td></tr>';
                   }
                   ?>
-                  <!-- Form để thêm ngân hàng CN mới -->
-                  <button id="toggleFormButton2" class="btn btn-secondary mb-2">+</button>
-
-                  <form id="bankForm2" action="process_bank_cn.php" method="POST" style="display: none;">
-                      <div class="form-group">
-                          <label for="bank_name_cn">NH CN:</label>
-                          <input type="text" class="form-control" name="bank_name_cn" required>
-                      </div>
-                      <div class="form-group">
-                          <label for="total_amount_cn">Số Tiền:</label>
-                          <input type="number" step="0.01" class="form-control" name="total_amount_cn" required>
-                      </div>
-                      <button type="submit" class="btn btn-primary mt-2">Thêm</button>
-                  </form>
-              </div>
-            
-              <div class="col-md-3">
-                  <div class="card text-white bg-danger mb-3">
-                      <div class="card-header">Tổng Tệ vào</div>
-                      <div class="card-body">
-                          <h5 class="card-title"><?= number_format($total_cn) ?> CNY</h5>
-                      </div>
+              </tbody>
+          </table>
+          <div class="col-md-4">
+              <button id="toggleFormButton2" class="btn btn-secondary mb-2">+</button>
+              <div id="bankForm2" class="card" style="display: none;">
+                  <div class="card-body">
+                      <form action="process_bank_cn.php" method="POST">
+                          <div class="form-group">
+                              <label for="bank_name_cn">NH CN:</label>
+                              <input type="text" class="form-control" name="bank_name_cn" required>
+                          </div>
+                          <div class="form-group">
+                              <label for="total_amount_cn">Số Tiền:</label>
+                              <input type="number" step="0.01" class="form-control" name="total_amount_cn" required>
+                          </div>
+                          <button type="submit" class="btn btn-primary mt-2">Thêm</button>
+                      </form>
                   </div>
               </div>
-
-              <div class="col-md-3">
-                  <div class="card text-white bg-warning mb-3">
-                      <div class="card-header">Tổng Tệ ra</div>
-                      <div class="card-body">
-                          <h5 class="card-title"><?= number_format($total_vn_to_cn_cn) ?> CNY</h5>
-                      </div>
-                  </div>
-              </div>
-            
-              <div class="col-md-3">
-                  <div class="card text-white bg-success mb-3">
-                      <div class="card-header">Tệ còn:</div>
-                      <div class="card-body">
-                          <h5 class="card-title"><?= number_format($remainingCN) ?> CNY</h5>
-                      </div>
-                  </div>
-              </div>
-
-          </div> <!-- end of .row -->
-      </div> <!-- end of .container -->
+          </div>
+      </div>
     </div>
 </div>
     <script>

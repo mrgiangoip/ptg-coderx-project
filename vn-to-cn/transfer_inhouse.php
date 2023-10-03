@@ -109,6 +109,7 @@
                       <select class="form-control" name="from_bank" required>
                           <option value="GTCB">GTCB</option>
                           <option value="GVCB">GVCB</option>
+                          <option value="GTCB">GACB</option>
                       </select>
                   </div>
 
@@ -123,6 +124,7 @@
                       <select class="form-control" name="to_bank" required>
                           <option value="GTCB">GTCB</option>
                           <option value="GVCB">GVCB</option>
+                          <option value="GTCB">GACB</option>    
                       </select>
                   </div>
               </div>
