@@ -118,8 +118,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chuyển tiền từ Việt Nam sang Trung Quốc</title>
     <!-- Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
@@ -137,18 +135,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php if (isset($_SESSION['user_id'])): ?>
     <?php require_once 'bank_list.php'; ?>
     <div class="container mt-5">
-    <h2>Chuyển tiền từ Việt Nam sang Trung Quốc</h2>
+    <h2>Chuyển tiền từ Việt Nam ra Trung Quốc</h2>
       <!-- Thêm nút đăng xuất -->
     <a href="logout.php" class="btn btn-danger">Đăng xuất</a>
     <a href="money_transfer2.php" class="btn btn-success">CN to VN</a>
             <form action="" method="post">
                 <div class="row">
                     <div class="col-md-2 form-group">
-                        <label for="bank_name_vn">Tên NH VN:</label>
+                        <label for="bank_name_vn">NH VN:</label>
                         <input type="text" class="form-control" name="bank_name_vn" id="bank_name_vn" required>
                     </div>
                     <div class="col-md-2 form-group">
-                        <label for="amount_vn">Số tiền VN vào:</label>
+                        <label for="amount_vn">Số Việt Vào:</label>
                         <input type="number" class="form-control" name="amount_vn" id="amount_vn_input" required>
                         <span id="formatted_amount_vn" style="font-weight: bold;"></span>
                     </div>
@@ -161,11 +159,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="number" step="0.01" class="form-control" name="fee" id="fee" required>
                     </div>
                     <div class="col-md-2 form-group">
-                        <label for="recipient_name">Tên người nhận:</label>
+                        <label for="recipient_name">Người nhận:</label>
                         <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
                     </div>
                     <div class="col-md-2 form-group">
-                        <label for="bank_name_cn">Tên NH TQ:</label>
+                        <label for="bank_name_cn">NH TQ:</label>
                         <input type="text" class="form-control" name="bank_name_cn" id="bank_name_cn" required>
                     </div>
                 </div>
@@ -244,12 +242,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <tr>
                       <th>Người chuyển</th>
                       <th>NH VN</th>
-                      <th>Số tiền VN vào</th>
+                      <th>Số Việt Vào</th>
                       <th>Tỉ giá</th>
                       <th>Phí</th>
                       <th>Người nhận</th>
-                      <th>Số tiền Tệ ra</th>
-                      <th>NH CN</th>
+                      <th>Số tiền Tệ Ra</th>
+                      <th>NH TQ</th>
                       <th>Cho phép sao chép</th>
                   </tr>
               </thead>

@@ -37,7 +37,7 @@
               echo '<p>Không có giao dịch nào được ghi lại.</p>';
           }
           ?>
-          <button id="cnToCnButton" class="btn">+</button>
+          <button id="cnToCnButton" class="btn btn-secondary mb-2">+</button>
           <form id="cnToCnform" action="transfer_money_cn.php" method="POST" style="display: none;">
               <div class="row">
                   <div class="col-md-2 form-group">
@@ -101,7 +101,7 @@
               echo '<p>Không có giao dịch nào được ghi lại.</p>';
           }
           ?>
-       <button id="vnToVnButton" class="btn">+</button>
+       <button id="vnToVnButton" class="btn btn-secondary mb-2">+</button>
           <form id="vnToVnform" action="transfer_money_vn.php" method="POST" style="display: none;">
               <div class="row">
                   <div class="col-md-2 form-group">

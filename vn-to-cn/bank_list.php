@@ -49,7 +49,25 @@
           $conn->query($update_sql_cn);
       }
     }
+    
+    $sql_vn = "SELECT SUM(total_amount_vn) AS total_vn FROM bank_balance_vn";
+    $sql_cn = "SELECT SUM(total_amount_cn) AS total_cn FROM bank_balance_cn";
 
+    $result_vn = $conn->query($sql_vn);
+    $result_cn = $conn->query($sql_cn);
+
+    $total_vn = $result_vn->fetch_assoc()['total_vn'];
+    $total_cn = $result_cn->fetch_assoc()['total_cn'];
+    
+    $sql_vn_in = "SELECT SUM(amount_vn) AS total_vn_in FROM vn_to_cn_transfer";
+    $sql_cn_out = "SELECT SUM(amount_cn) AS total_cn_out FROM vn_to_cn_transfer";
+    $sql_cn_in = "SELECT SUM(amount_to_transfer) AS total_cn_in FROM cn_to_vn_transfer";
+    $sql_vn_out = "SELECT SUM(converted_amount) AS total_vn_out FROM cn_to_vn_transfer";
+
+    $total_vn_in = $conn->query($sql_vn_in)->fetch_assoc()['total_vn_in'];
+    $total_cn_out = $conn->query($sql_cn_out)->fetch_assoc()['total_cn_out'];
+    $total_cn_in = $conn->query($sql_cn_in)->fetch_assoc()['total_cn_in'];
+    $total_vn_out = $conn->query($sql_vn_out)->fetch_assoc()['total_vn_out'];
     ?>
     <style>
     .slide-container {
@@ -118,6 +136,12 @@
                   echo '<tr><td colspan="4">Không có ngân hàng nào trong cơ sở dữ liệu.</td></tr>';
               }
               ?>
+                    <tr>
+                      <th>Tổng Tiền Việt</th>
+                      <th><?= number_format($total_vn) ?></th>
+                      <th><?= number_format($total_vn_in) ?></th>
+                      <th><?= number_format($total_vn_out) ?></th>
+                    </tr>
           </tbody>
       </table>
       <div class="col-md-4">
@@ -131,7 +155,8 @@
                   </div>
                   <div class="form-group">
                       <label for="total_amount">Số Tiền:</label>
-                      <input type="number" class="form-control" name="total_amount" required>
+                      <input type="number" class="form-control" name="total_amount" id="amount_vn_input_4" required>
+                      <span id="formatted_amount_vn_4" style="font-weight: bold;"></span>
                   </div>
                   <button type="submit" class="btn btn-primary mt-2">Thêm</button>
               </form>
@@ -141,7 +166,7 @@
     </div>
 
     <div class="container mt-5">
-        <h2 class="mb-4">NH CN</h2>
+        <h2 class="mb-4">NH TQ</h2>
 
           <table class="table table-bordered table-striped">
               <thead>
@@ -193,6 +218,12 @@
                       echo '<tr><td colspan="4">Không có ngân hàng nào trong cơ sở dữ liệu.</td></tr>';
                   }
                   ?>
+                  <tr>
+                     <th>Tổng Tiền TQ</th>
+                     <th><?= number_format($total_cn) ?></th>
+                     <th><?= number_format($total_cn_in) ?></th>
+                     <th><?= number_format($total_cn_out) ?></th>
+                  </tr>
               </tbody>
           </table>
           <div class="col-md-4">
@@ -206,7 +237,8 @@
                           </div>
                           <div class="form-group">
                               <label for="total_amount_cn">Số Tiền:</label>
-                              <input type="number" step="0.01" class="form-control" name="total_amount_cn" required>
+                              <input type="number" step="0.01" class="form-control" name="total_amount_cn" id="amount_vn_input_3" required>
+                              <span id="formatted_amount_vn_3" style="font-weight: bold;"></span>
                           </div>
                           <button type="submit" class="btn btn-primary mt-2">Thêm</button>
                       </form>
@@ -252,3 +284,29 @@
             });
         });
     </script>
+    <script>
+       // Sử dụng JavaScript để định dạng số tiền VN nhận có dấu chấm khi nhập và hiển thị ngoài ô
+       document.getElementById('amount_vn_input_3').addEventListener('input', function (e) {
+           // Lấy giá trị nhập vào
+           let inputValue = e.target.value;
+
+           // Định dạng giá trị với dấu chấm
+           let formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+           // Hiển thị giá trị đã định dạng bên ngoài ô
+           document.getElementById('formatted_amount_vn_3').textContent = formattedValue;
+       });
+   </script>
+   <script>
+       // Sử dụng JavaScript để định dạng số tiền VN nhận có dấu chấm khi nhập và hiển thị ngoài ô
+       document.getElementById('amount_vn_input_4').addEventListener('input', function (e) {
+           // Lấy giá trị nhập vào
+           let inputValue = e.target.value;
+
+           // Định dạng giá trị với dấu chấm
+           let formattedValue = inputValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+           // Hiển thị giá trị đã định dạng bên ngoài ô
+           document.getElementById('formatted_amount_vn_4').textContent = formattedValue;
+       });
+   </script>

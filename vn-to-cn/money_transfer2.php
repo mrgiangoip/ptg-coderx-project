@@ -124,7 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form action="" method="post">
       <div class="row">
         <div class="col-md-2 form-group">
-          <label for="bank_china">Tên NH TQ:</label>
+          <label for="bank_china">NH TQ:</label>
           <input type="text" class="form-control" name="bank_china" id="bank_china" required>
         </div>
         <div class="col-md-2 form-group">
@@ -141,11 +141,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <input type="number" step="0.01" class="form-control" name="transfer_fee" id="transfer_fee" required>
         </div>
         <div class="col-md-2 form-group">
-          <label for="recipient_name">Tên người nhận tiền:</label>
+          <label for="recipient_name">Người nhận:</label>
           <input type="text" class="form-control" name="recipient_name" id="recipient_name" required>
         </div>
         <div class="col-md-2 form-group">
-          <label for="bank_vietnam">Tên NH VN:</label>
+          <label for="bank_vietnam">NH VN:</label>
           <input type="text" class="form-control" name="bank_vietnam" id="bank_vietnam" required>
         </div>
       </div>
