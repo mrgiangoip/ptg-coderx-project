@@ -69,15 +69,15 @@
 <body>
   <div class="myMenu-container">
     <div class="myMenu-menu">
-      <a class="myMenu-link" href="#item1">Đồng Phục Công Sở Nam</a>
-      <a class="myMenu-link" href="#item2">Đồng Phục Công Sở Nữ</a>
-      <a class="myMenu-link" href="#item3">Đồng Phục Áo Phông</a>
-      <a class="myMenu-link" href="#item4">Đồng Phục Công Nghiệp Kỹ Thuật</a>
-      <a class="myMenu-link" href="#item5">Đồng Phục Nhà Hàng – Khách Sạn</a>
-      <a class="myMenu-link" href="#item6">Đồng Phục An Ninh – Bảo Vệ</a>
-      <a class="myMenu-link" href="#item7">Đồng Phục SPA – PG</a>
-      <a class="myMenu-link" href="#item8">Đồng Phục Y Tế</a>
-      <a class="myMenu-link" href="#item9">Đồng Phục Mùa Đông</a>
+      <a class="myMenu-link" data-target="item1">Đồng Phục Công Sở Nam</a>
+      <a class="myMenu-link" data-target="item2">Đồng Phục Công Sở Nữ</a>
+      <a class="myMenu-link" data-target="item3">Đồng Phục Áo Phông</a>
+      <a class="myMenu-link" data-target="item4">Đồng Phục Công Nghiệp Kỹ Thuật</a>
+      <a class="myMenu-link" data-target="item5">Đồng Phục Nhà Hàng – Khách Sạn</a>
+      <a class="myMenu-link" data-target="item6">Đồng Phục An Ninh – Bảo Vệ</a>
+      <a class="myMenu-link" data-target="item7">Đồng Phục SPA – PG</a>
+      <a class="myMenu-link" data-target="item8">Đồng Phục Y Tế</a>
+      <a class="myMenu-link" data-target="item9">Đồng Phục Mùa Đông</a>
     </div>
     <div class="myMenu-content">
       <div id="item1" class="myMenu-item myMenu-default">
@@ -134,6 +134,35 @@
       window.location.hash = '#item1';
     }
   });
+
+  document.addEventListener('DOMContentLoaded', function () {
+  const links = document.querySelectorAll('.myMenu-link');
+  const items = document.querySelectorAll('.myMenu-item');
+  
+  function showContent(id) {
+    items.forEach(item => {
+      item.style.display = item.id === id ? 'block' : 'none';
+    });
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetId = e.currentTarget.dataset.target;
+      showContent(targetId);
+    });
+  });
+
+  if (window.location.hash) {
+    const id = window.location.hash.substring(1); 
+    showContent(id);
+  } else {
+
+    showContent(items[0].id);
+  }
+});
+
 </script>
+
 </body>
 </html>
