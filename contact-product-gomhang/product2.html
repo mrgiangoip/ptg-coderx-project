@@ -13,7 +13,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      width: 250px;
+      width: 260px;
       margin-right: 20px;
     }
     .myMenu-link {
@@ -22,8 +22,6 @@
       font-size: 16px;
       text-decoration: none;
       color: black;
-      border: 1px solid black;
-      border-radius: 5px;
       text-align: center;
     }
     .myMenu-link:hover {
@@ -34,7 +32,6 @@
 
     .myMenu-content {
       max-width: 600px;
-      text-align: center;
     }
     .myMenu-item {
       display: none;
@@ -63,21 +60,93 @@
       background-color: #333;
       transform: scale(1.05);
     }
+    .myMenu-submenu {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding-left: 20px;
+    }
+    .myMenu-sublink {
+      display: block;
+      padding: 10px;
+      font-size: 16px;
+      text-decoration: none;
+      color: black;
+      text-align: center;
+    }
+    .myMenu-sublink:hover {
+      background-color: #f0f0f0;
+      color: #333;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .myMenu-link.active + .myMenu-submenu {
+      display: flex;
+    }
 
+/* Menu Dọc Main */
+@media (max-width: 768px) {
+  .myMenu-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .myMenu-menu {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột với kích thước bằng nhau */
+    grid-gap: 10px; /* Khoảng cách giữa các item */
+  }
+
+  .myMenu-link {
+    padding: 0px; /* Tăng padding để dễ nhấn trên thiết bị cảm ứng */
+    font-size: 10px !important; /* Giảm kích thước font nếu cần */
+  }
+
+  .myMenu-content {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+  }
+}
   </style>
 </head>
 <body>
   <div class="myMenu-container">
     <div class="myMenu-menu">
       <a class="myMenu-link" data-target="item1">Đồng Phục Công Sở Nam</a>
+      <div class="myMenu-submenu">
+        <a class="myMenu-sublink" data-target="subitem1">Áo Sơ Mi Nam</a>
+        <a class="myMenu-sublink" data-target="subitem2">Quần Âu Nam</a>
+        <a class="myMenu-sublink" data-target="subitem3">Áo Vest Nam</a>
+        <a class="myMenu-sublink" data-target="subitem4">Áo Gile Nam</a>
+      </div>
       <a class="myMenu-link" data-target="item2">Đồng Phục Công Sở Nữ</a>
+       <div class="myMenu-submenu">
+        <a class="myMenu-sublink" data-target="subitem5">Áo Sơ Mi Nữ</a>
+        <a class="myMenu-sublink" data-target="subitem6">Quần Âu/ Zuíp Nữ</a>
+        <a class="myMenu-sublink" data-target="subitem7">Áo Vest Nữ</a>
+        <a class="myMenu-sublink" data-target="subitem8">Áo Gile Nữ</a>
+      </div>
       <a class="myMenu-link" data-target="item3">Đồng Phục Áo Phông</a>
-      <a class="myMenu-link" data-target="item4">Đồng Phục Công Nghiệp Kỹ Thuật</a>
-      <a class="myMenu-link" data-target="item5">Đồng Phục Nhà Hàng – Khách Sạn</a>
-      <a class="myMenu-link" data-target="item6">Đồng Phục An Ninh – Bảo Vệ</a>
+      <a class="myMenu-link" data-target="item4">Công Nghiệp Kỹ Thuật</a>
+      <a class="myMenu-link" data-target="item5">Nhà Hàng – Khách Sạn</a>
+       <div class="myMenu-submenu">
+        <a class="myMenu-sublink" data-target="subitem9">ÁO BẾP</a>
+        <a class="myMenu-sublink" data-target="subitem10">Áo Phục Vụ</a>
+        <a class="myMenu-sublink" data-target="subitem11">Bàn – Bar</a>
+        <a class="myMenu-sublink" data-target="subitem12">Bell</a>
+      </div>
+      <a class="myMenu-link" data-target="item6">An Ninh – Bảo Vệ</a>
       <a class="myMenu-link" data-target="item7">Đồng Phục SPA – PG</a>
+        <div class="myMenu-submenu">
+        <a class="myMenu-sublink" data-target="subitem13">PG</a>
+        <a class="myMenu-sublink" data-target="subitem14">SPA</a>
+      </div>
       <a class="myMenu-link" data-target="item8">Đồng Phục Y Tế</a>
       <a class="myMenu-link" data-target="item9">Đồng Phục Mùa Đông</a>
+        <div class="myMenu-submenu">
+        <a class="myMenu-sublink" data-target="subitem15">Áo Chần Bông</a>
+        <a class="myMenu-sublink" data-target="subitem16">Áo Gió</a>
+        <a class="myMenu-sublink" data-target="subitem17">Áo Khoác</a>
+      </div>
     </div>
     <div class="myMenu-content">
       <div id="item1" class="myMenu-item myMenu-default">
@@ -85,11 +154,51 @@
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-cong-so' display='content']
         <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dong-phuc-cong-so-nam/">Khám Phá</a>
       </div>
+        <div id="subitem1" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/so-mi-nam.jpg" alt="Áo Sơ Mi Nam">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-so-mi-nam' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-so-mi-nam/">Khám Phá</a>
+        </div>
+        <div id="subitem2" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Quan-Au-nam.jpg" alt="Quần Âu Nam">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-quan-au-nam' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/quan-au-nam/">Khám Phá</a>
+        </div>
+        <div id="subitem3" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Vest-Nam.jpg" alt="Áo Vest Nam">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-vest-nam' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-vest-nam/">Khám Phá</a>
+        </div>
+        <div id="subitem4" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Gile-Nam.jpg" alt="Áo Gile Nam">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-gile-nam' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-gile-nam/">Khám Phá</a>
+        </div>
       <div id="item2" class="myMenu-item">
         <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-Cong-So-Nu.jpg" alt="Ảnh mô tả">
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-cong-so-nu' display='content'] 
         <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dong-phuc-cong-so-nu/">Khám Phá</a>
       </div>
+        <div id="subitem5" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/So-Mi-Nu.jpg" alt="Áo Sơ Mi Nữ">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-so-mi-nu' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-so-mi-nu/">Khám Phá</a>
+        </div>
+        <div id="subitem6" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Quan-Au-nu.jpg" alt="Quần Âu Nữ">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-quan-au-zuip-nu' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/quan-au-nu/">Khám Phá</a>
+        </div>
+        <div id="subitem7" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Vest-Nu.jpg" alt="Áo Vest Nữ">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-vest-nu' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-vest-nu/">Khám Phá</a>
+        </div>
+        <div id="subitem8" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Gile-N.jpg" alt="Áo Gile Nữ">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-gile-nu' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-gile-nu/">Khám Phá</a>
+        </div>
       <!-- Tương tự với các bài viết khác -->
       <div id="item3" class="myMenu-item">
         <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-Ao-Phong.jpg" alt="Ảnh mô tả">
@@ -106,6 +215,26 @@
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-nha-hang-khach-san' display='content']
         <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dong-phuc-nha-hang-khach-san/">Khám Phá</a>
       </div>
+        <div id="subitem9" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Ao-Bep.jpg" alt="ÁO BẾP">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-bep' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-bep/">Khám Phá</a>
+        </div>
+        <div id="subitem10" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Ao-PV.jpg" alt="Áo Phục Vụ">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-phuc-vu' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-phuc-vu/">Khám Phá</a>
+        </div>
+        <div id="subitem11" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Ban-Bar.jpg" alt="Bàn – Bar">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ban-bar' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ban-bar/">Khám Phá</a>
+        </div>
+        <div id="subitem12" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/DP-Bell.jpg" alt="Bell">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-bell' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/bell/">Khám Phá</a>
+        </div>
       <div id="item6" class="myMenu-item">
         <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-BV-AN.jpg" alt="Ảnh mô tả">
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-an-ninh-bao-ve' display='content']
@@ -116,6 +245,16 @@
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-spa-pg' display='content']
         <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dong-phuc-spa-pg/">Khám Phá</a>
       </div>
+        <div id="subitem13" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/PG.jpg" alt="PG">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-pg' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/pg/">Khám Phá</a>
+        </div>
+        <div id="subitem14" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/SPA.jpg" alt="SPA">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-spa' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/spa/">Khám Phá</a>
+        </div>
       <div id="item8" class="myMenu-item">
         <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-Y-TE.jpg" alt="Ảnh mô tả">
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-y-te' display='content']
@@ -126,6 +265,21 @@
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-mua-dong' display='content']
         <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dong-phuc-mua-dong/">Khám Phá</a>
       </div>
+        <div id="subitem15" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Ao-Chan-Bong.jpg" alt="Áo Chần Bông">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-chan-bong' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-chan-bong/">Khám Phá</a>
+        </div>
+        <div id="subitem16" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Ao-GIo.jpg" alt="Áo Gió">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-gio' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-gio/">Khám Phá</a>
+        </div>
+        <div id="subitem17" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Ao-Kh.jpg" alt="Áo Khoác">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-khoac' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/ao-khoac/">Khám Phá</a>
+        </div>
     </div>
   </div>
 <script>
@@ -136,9 +290,9 @@
   });
 
   document.addEventListener('DOMContentLoaded', function () {
-  const links = document.querySelectorAll('.myMenu-link');
+  const links = document.querySelectorAll('.myMenu-link, .myMenu-sublink');
   const items = document.querySelectorAll('.myMenu-item');
-  
+
   function showContent(id) {
     items.forEach(item => {
       item.style.display = item.id === id ? 'block' : 'none';
@@ -150,6 +304,11 @@
       e.preventDefault();
       const targetId = e.currentTarget.dataset.target;
       showContent(targetId);
+      
+      if (link.classList.contains('myMenu-link')) {
+        document.querySelectorAll('.myMenu-link').forEach(link => link.classList.remove('active'));
+        link.classList.add('active');
+      }
     });
   });
 
@@ -157,10 +316,10 @@
     const id = window.location.hash.substring(1); 
     showContent(id);
   } else {
-
     showContent(items[0].id);
   }
 });
+
 
 </script>
 
