@@ -6,7 +6,8 @@
   <link rel="stylesheet" href="styles.css">
   <title>Menu Bài Viết</title>
   <style type="text/css">
-    .myMenu-container {
+    /* Menu Dọc Main */
+.myMenu-container {
       display: flex;
     }
     .myMenu-menu {
@@ -82,9 +83,90 @@
     .myMenu-link.active + .myMenu-submenu {
       display: flex;
     }
+/* Chất Lượng Dịch Vụ */
+.circle-buttons-gioi-thieu-trang-chu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+}
 
+.button-gioi-thieu-trang-chu {
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  text-align: center;
+  padding: 20px;
+  margin: 10px;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.button-gioi-thieu-trang-chu:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+#design { background-color: #ffcccb; }
+#shape { background-color: #ffebcc; }
+#fabric { background-color: #e0ebcc; }
+#price { background-color: #ccebe5; }
+#speed { background-color: #ccd4eb; }
+#warranty { background-color: #ebccf1; }
+
+/* Quy Trình Đặt Hàng */
+.order-process-quy-trinh {
+  display: flex;
+  align-items: center;
+  margin: 20px;
+  flex-wrap: wrap;
+}
+
+.step-quy-trinh, .arrow-quy-trinh {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.box-quy-trinh {
+  background-color: #e0e0e0;
+  color: #333;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.arrow-quy-trinh {
+  font-size: 2rem;
+  color: #e0e0e0;
+  transition: color 0.3s;
+}
+
+.step-quy-trinh:hover .box-quy-trinh {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.step-quy-trinh:hover + .arrow-quy-trinh {
+  color: #333;
+}
 /* Menu Dọc Main */
 @media (max-width: 768px) {
+  .order-process-quy-trinh {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .arrow-quy-trinh {
+    transform: rotate(90deg); /* Xoay mũi tên 90 độ */
+  }
   .myMenu-container {
     flex-direction: column;
     align-items: center;
@@ -122,10 +204,12 @@
        <div class="myMenu-submenu">
         <a class="myMenu-sublink" data-target="subitem5">Áo Sơ Mi Nữ</a>
         <a class="myMenu-sublink" data-target="subitem6">Quần Âu/ Zuíp Nữ</a>
+        <a class="myMenu-sublink" data-target="subitem18">Đầm Nữ</a>
         <a class="myMenu-sublink" data-target="subitem7">Áo Vest Nữ</a>
         <a class="myMenu-sublink" data-target="subitem8">Áo Gile Nữ</a>
       </div>
       <a class="myMenu-link" data-target="item3">Đồng Phục Áo Phông</a>
+          <a class="myMenu-link" data-target="item10">Đồng Phục Học Sinh</a>
       <a class="myMenu-link" data-target="item4">Công Nghiệp Kỹ Thuật</a>
       <a class="myMenu-link" data-target="item5">Nhà Hàng – Khách Sạn</a>
        <div class="myMenu-submenu">
@@ -189,6 +273,11 @@
           [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-quan-au-zuip-nu' display='content']
           <a class="myMenu-exploreBtn" style="color: #fff !important" href="/quan-au-nu/">Khám Phá</a>
         </div>
+        <div id="subitem18" class="myMenu-item">
+          <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-Dam-Nu.png" alt="Đầm Nữ">
+          [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-dam-nu' display='content']
+          <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dam-nu/">Khám Phá</a>
+        </div>
         <div id="subitem7" class="myMenu-item">
           <img class="myMenu-image" src="/wp-content/uploads/2023/10/Vest-Nu.jpg" alt="Áo Vest Nữ">
           [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-vest-nu' display='content']
@@ -204,6 +293,11 @@
         <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-Ao-Phong.jpg" alt="Ảnh mô tả">
         [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-ao-phong' display='content']
         <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dong-phuc-ao-phong/">Khám Phá</a>
+      </div>
+       <div id="item10" class="myMenu-item">
+        <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-Hoc-Sinh.jpg" alt="Ảnh mô tả">
+        [insert page='mo-ta-ngan-menu-trang-chu-dong-phuc-hoc-sinh' display='content']
+        <a class="myMenu-exploreBtn" style="color: #fff !important" href="/dong-phuc-hoc-sinh/">Khám Phá</a>
       </div>
       <div id="item4" class="myMenu-item">
         <img class="myMenu-image" src="/wp-content/uploads/2023/10/Menu-Cong-Nhan-Ky-Thuat.jpg" alt="Ảnh mô tả">
@@ -282,6 +376,36 @@
         </div>
     </div>
   </div>
+  <div class="circle-buttons-gioi-thieu-trang-chu">
+    <div class="button-gioi-thieu-trang-chu" id="design">Thiết Kế Đẹp</div>
+    <div class="button-gioi-thieu-trang-chu" id="shape">Form Dáng Chuẩn</div>
+    <div class="button-gioi-thieu-trang-chu" id="fabric">Mẫu Vải Đa Dạng</div>
+    <div class="button-gioi-thieu-trang-chu" id="price">Giá Thành Cạnh Tranh</div>
+    <div class="button-gioi-thieu-trang-chu" id="speed">Tiến Độ Sản Xuất Nhanh</div>
+    <div class="button-gioi-thieu-trang-chu" id="warranty">Bảo Hành Lâu Dài</div>
+  </div>
+
+  <div class="order-process-quy-trinh">
+    <div class="step-quy-trinh">
+      <div class="box-quy-trinh">Tư Vấn Trao Đổi</div>
+    </div>
+    <div class="arrow-quy-trinh">&#10095;</div>
+    <div class="step-quy-trinh">
+      <div class="box-quy-trinh">Lên Market Báo Giá</div>
+    </div>
+    <div class="arrow-quy-trinh">&#10095;</div>
+    <div class="step-quy-trinh">
+      <div class="box-quy-trinh">Chốt Mẫu Ký Hợp Đồng</div>
+    </div>
+    <div class="arrow-quy-trinh">&#10095;</div>
+    <div class="step-quy-trinh">
+      <div class="box-quy-trinh">Tiến Hành Sản Xuất Và Bàn Giao</div>
+    </div>
+    <div class="arrow-quy-trinh">&#10095;</div>
+    <div class="step-quy-trinh">
+      <div class="box-quy-trinh">Thanh Toán, Thanh Lý Hợp Đồng</div>
+    </div>
+  </div>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     if (window.location.hash === '') {
@@ -322,6 +446,5 @@
 
 
 </script>
-
 </body>
 </html>
