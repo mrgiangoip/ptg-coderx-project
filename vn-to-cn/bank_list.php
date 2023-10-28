@@ -310,3 +310,4 @@
            document.getElementById('formatted_amount_vn_4').textContent = formattedValue;
        });
    </script>
+   

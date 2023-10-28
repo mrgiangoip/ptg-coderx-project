@@ -1,23 +1,9 @@
-// product.route.js
+var express = require('express');
 
-const express = require('express');
-const router = express.Router();
-const productController = require('../controllers/product.controller');
- // Giả sử bạn có một file controller cho sản phẩm
+var controller = require('../controllers/product.controller');
 
-// Lấy danh sách tất cả sản phẩm
-router.get('/', productController.getAllProducts);
+var router = express.Router();
 
-// Lấy thông tin chi tiết một sản phẩm dựa trên ID
-router.get('/:productid', productController.getProductById);
-
-// Tạo mới một sản phẩm
-router.post('/', productController.createProduct);
-
-// Cập nhật thông tin sản phẩm
-router.put('/:productid', productController.updateProduct);
-
-// Xóa một sản phẩm dựa trên ID
-router.delete('/:productid', productController.deleteProduct);
+router.get('/', controller.index);
 
 module.exports = router;
