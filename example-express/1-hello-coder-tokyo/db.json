@@ -36,6 +36,24 @@
       "id": "WGrAbiO0l",
       "email": "mr.giangoip@gmail.com",
       "password": "e10adc3949ba59abbe56e057f20f883e"
+    },
+    {
+      "name": "Micheal",
+      "phone": "123456",
+      "id": "FiJdZZl9R",
+      "avatar": "uploads/cffbd619e0642d775f2caa4768b7b532"
+    },
+    {
+      "name": "Tom",
+      "phone": "1234",
+      "id": "MSp9T4h9V",
+      "avatar": "uploads/cffbd619e0642d775f2caa4768b7b532"
+    },
+    {
+      "name": "Bò",
+      "phone": "123456",
+      "id": "rD3Fq6mFL",
+      "avatar": "uploads/9d743d87ea71c639aeb8196e86c49dd5"
     }
   ],
   "products": [
@@ -639,5 +657,7 @@
       "image": "https://loremflickr.com/320/240",
       "Description": "volutpat quam pede lobortis ligula sit amet eleifend pede libero quis orci nullam molestie nibh in lectus pellentesque at nulla"
     }
-  ]
+  ],
+  "sessions": [],
+  "transfers": []
 }

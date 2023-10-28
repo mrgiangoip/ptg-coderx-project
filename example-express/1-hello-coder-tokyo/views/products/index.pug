@@ -17,3 +17,19 @@ block content
             h5.card-title= product.name
             p.card-text= product.description
             a.btn.btn-primary(href='/cart/add/' + product.id) Add to cart
+
+  if totalPages > 1
+    nav.aria-label="Page navigation"
+      ul.pagination
+        li.page-item(class=(page === 1 ? 'disabled' : ''))
+          a.page-link(href=`?page=${page - 1}`) Previous
+        if page > 1
+          li.page-item
+            a.page-link(href=`?page=${page - 1}`) #{page - 1}
+        li.page-item.active
+          span.page-link #{page}
+        if page < totalPages
+          li.page-item
+            a.page-link(href=`?page=${page + 1}`) #{page + 1}
+        li.page-item(class=(page === totalPages ? 'disabled' : ''))
+          a.page-link(href=`?page=${page + 1}`) Next

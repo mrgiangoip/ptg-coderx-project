@@ -1,10 +1,16 @@
 // db.js
 var low = require('lowdb');
 var FileSync = require('lowdb/adapters/FileSync');
+var adapter = new FileSync('db.json');
 
-const adapter = new FileSync('db.json');
-const db = low(adapter);
+db = low(adapter);
 
-db.defaults({ users: [], products: [] }).write();
+// Set some defaults (required if your JSON file is empty)
+db.defaults({
+  users: [],
+  sessions: [],
+  transfers: []
+})
+  .write();
 
-module.exports = db;  // Xuất khẩu trực tiếp đối tượng db
+module.exports = db;
