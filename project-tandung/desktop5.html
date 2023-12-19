@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop 5</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #e7e7e3;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            z-index: 2; /* Đặt chỉ số z để header nằm trên cùng */
+            position: relative; /* Đặt vị trí tương đối để chỉ số z có hiệu lực */
+        }
+
+        .magazine {
+            order: 1;
+            font-size: 50px;
+            font-weight: 700;
+            margin-left: 20px;
+            color: #3B3E19;
+        }
+
+        .my-project {
+            order: 2;
+            margin-left: auto;
+            margin-right: 30px;
+        }
+
+        .my-project a {
+            color: #000 !important;
+            text-decoration: none;
+        }
+
+        .my-project a:hover {
+            cursor: pointer;
+        }   
+
+        main {
+            background-image: url('./image/2972660.png'); /* Thay đổi đường dẫn đến hình ảnh nền của bạn */
+            background-size: cover;
+            background-position: center;
+            height: 100vh; /* 100% chiều cao của viewport */
+            display: flex;
+            flex-direction: column; /* Hiển thị các phần tử con theo chiều dọc */
+            align-items: flex-start; /* Căn chỉnh theo chiều dọc, bắt đầu từ phía trên cùng */
+            justify-content: flex-start; /* Căn chỉnh theo chiều ngang, bắt đầu từ phía trái cùng */
+            text-align: left; /* Căn lề văn bản sang trái */
+            color: #3B3E19;
+            position: relative; /* Đặt vị trí tương đối */
+            z-index: 1; /* Đặt chỉ số z để main nằm dưới header */
+            padding: 20px; /* Thêm padding để tạo khoảng cách với lề trên và lề trái */
+            padding-top: 200px;
+        }
+
+        main h2, main p {
+            margin: 0; /* Loại bỏ margin của h2 và p để không tạo khoảng trắng dư thừa */
+            display: block; /* Hiển thị các thẻ như các khối block */ 
+        }
+
+        main h2{
+         font-size: 40px;
+        }
+
+        main p {
+            margin-top: 5px; /* Điều chỉnh khoảng cách giữa thẻ h2 và p */
+        }
+        .description {
+            margin-left: 50px;
+            margin-top: -180px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="magazine">03. Magazine</div>
+        <div class="my-project"><a href="desktop2.html">My Project</a></div>
+    </header>
+
+    <main>
+        <div class="description">
+        <h2>Vietnam Traveller Magazine</h2>
+        <p>Magazine Design</p>
+        </div>
+    </main>
+    <script>
+        // Chờ 5 giây và chuyển hướng sang trang desktop12.html
+        setTimeout(function() {
+            window.location.href = "desktop12.html";
+        }, 5000);
+
+        // Chuyển hướng khi bấm vào bất kỳ vị trí trên màn hình
+        document.body.addEventListener("click", function() {
+            window.location.href = "desktop12.html";
+        });
+    </script>
+
+</body>
+</html>

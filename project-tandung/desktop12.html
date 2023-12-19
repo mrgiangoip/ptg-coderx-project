@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop 12</title>
+    <style>
+    	img{
+    		width: 100%;
+    		height: 100vh;
+    	}
+    </style>
+</head>
+<body>
+   <img src="./image/minimalist_a4_magazine_mockup_8.png" alt="Ảnh mô tả">
+   <script>
+        // Chờ 5 giây và chuyển hướng sang trang desktop13.html
+        setTimeout(function() {
+            window.location.href = "desktop13.html";
+        }, 5000);
+
+        // Chuyển hướng khi bấm vào bất kỳ vị trí trên màn hình
+        document.body.addEventListener("click", function() {
+            window.location.href = "desktop13.html";
+        });
+    </script>
+</body>
+</html>

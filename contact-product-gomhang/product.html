@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title></title>
+  <style type="text/css">
+  .container-menu-main-thanh-dat {
+    display: flex;
+  }
+
+  .menu-menu-main-thanh-dat {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #ccc;
+  }
+
+  .menu-menu-main-thanh-dat button {
+    padding: 10px;
+    border: none;
+    background-color: transparent;
+    text-align: left;
+    width: 100%;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+  }
+
+  .menu-menu-main-thanh-dat button:hover {
+    background-color: #f9f9f9;
+  }
+
+  .product-detail-menu-main-thanh-dat {
+    flex-grow: 1;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+  }
+
+  .product-detail-menu-main-thanh-dat img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .product-detail-menu-main-thanh-dat p {
+    margin-bottom: 10px;
+  }
+
+  .product-detail-menu-main-thanh-dat button {
+    padding: 5px 10px;
+    font-size: 12px;
+    width: 100px;
+    text-align: center;
+    margin: 0;
+  }
+  </style>
+</head>
+<body>
+<div class="row">
+      <div class="col-md-3 hidden-sm hidden-xs">
+        <div class="mainmenu">
+          <span class="edit-span"><i class="fa fa-dashcube" aria-hidden="true"></i> Danh mục sản phẩm</span>
+          <div class="nav-cate">
+            <ul id="menu2017">
+              
+              
+              
+              
+              
+              
+              <li class="dropdown menu-item-count">
+                <h3>
+                  <img src="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-1.png?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-1.png?v=230" alt="Phòng khách">
+                  <a href="/collections/phong-khach">Phòng khách <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                </h3>
+                <div class="subcate gd-menu">
+                  <div class="subcate-flex">
+                    
+                    
+                    <aside>
+                      <a href="/collections/sofa-ghe-pho-ng-kha-ch" class="">Sofa &amp; ghế phòng khách</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/ke-cho-tv-thie-t-bi-die-n-tu" class="">Kệ cho TV &amp; thiết bị điện tử</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/ba-n-ca-phe" class="">Bàn cà phê</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/ban-goc" class="">Bàn góc</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/ghe-luo-i-don-me-m" class="">Ghế lười &amp; đôn mềm</a>
+                    </aside>
+                    
+                    
+                  </div>
+                </div>
+              </li>
+              
+              
+              
+              
+              <li class="dropdown menu-item-count">
+                <h3>
+                  <img src="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-2.png?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-2.png?v=230" alt="Phòng ngủ">
+                  <a href="/collections/phong-ngu">Phòng ngủ <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                </h3>
+                <div class="subcate gd-menu">
+                  <div class="subcate-flex">
+                    
+                    
+                    <aside>
+                      <a href="/collections/giuo-ng-ngu" class="">Giường ngủ</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/ba-n-ke-da-u-giuo-ng" class="">Bàn kê đầu giường</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/ba-n-trang-die-m" class="">Bàn trang điểm</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/chan-ga" class="">Chăn ga</a>
+                    </aside>
+                    
+                    
+                  </div>
+                </div>
+              </li>
+              
+              
+              
+              
+              <li class="dropdown menu-item-count">
+                <h3>
+                  <img src="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-3.png?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-3.png?v=230" alt="Phòng bếp">
+                  <a href="/collections/phong-bep">Phòng bếp <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                </h3>
+                <div class="subcate gd-menu">
+                  <div class="subcate-flex">
+                    
+                    
+                    <aside>
+                      <a href="/collections/ban-an" class="">Bàn ăn</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/ghe-an" class="">Ghế ăn</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/do-dung-ban-an" class="">Đồ dùng bàn ăn</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/dem-ngoi" class="">Đệm ngồi</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/tu-ba-t-di-a" class="">Tủ bát đĩa</a>
+                    </aside>
+                    
+                    
+                  </div>
+                </div>
+              </li>
+              
+              
+              
+              
+              <li class="dropdown menu-item-count">
+                <h3>
+                  <img src="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-4.png?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-4.png?v=230" alt="Đồ trang trí">
+                  <a href="/collections/do-trang-tri">Đồ trang trí <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                </h3>
+                <div class="subcate gd-menu">
+                  <div class="subcate-flex">
+                    
+                    
+                    <aside>
+                      <a href="/collections/de-n-pho-ng-kha-ch" class="">Đèn phòng khách</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/guong" class="">Gương</a>
+                    </aside>
+                    
+                    
+                    
+                    <aside>
+                      <a href="/collections/goi-trang-tri" class="">Gối trang trí</a>
+                    </aside>
+                    
+                    
+                  </div>
+                </div>
+              </li>
+              
+              
+              
+              
+              <li class="menu-item-count">
+                <h3><img src="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-5.png?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-5.png?v=230" alt="Ghế Sofa"><a href="/collections/ghe-sofa">Ghế Sofa</a></h3>
+              </li>
+              
+              
+              
+              
+              <li class="menu-item-count">
+                <h3><img src="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-6.png?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-6.png?v=230" alt="Giường ngủ"><a href="/collections/giuong-ngu">Giường ngủ</a></h3>
+              </li>
+              
+              
+              
+              
+              <li class="menu-item-count">
+                <h3><img src="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-7.png?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-7.png?v=230" alt="Thảm trải sàn"><a href="/collections/tham-trai-san">Thảm trải sàn</a></h3>
+              </li>
+              
+              
+              
+              
+              <li class="menu-item-count toggleable" style="display: none;">
+                <h3><img src="//theme.hstatic.net/1000343108/1000435493/14/loader.svg?v=230" data-lazyload="//theme.hstatic.net/1000343108/1000435493/14/index-cate-icon-8.png?v=230" alt="Ghế thư giãn"><a href="/collections/ghe-thu-gian">Ghế thư giãn</a></h3>
+              </li>
+              
+              
+            <li class="more"><h3><a><label>Xem thêm ... </label></a></h3></li></ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="section-head">
+              <span class="group-icon"><i class="fa fa-dashcube" aria-hidden="true"></i></span>
+              <h2>Sản phẩm nổi bật</h2>
+            </div>
+          </div>
+          <div class="col-md-12 e-tabs not-dqtab ajax-tab-1" data-section="ajax-tab-1">
+            <div class="content">
+              <div>
+                <ul class="tabs tabs-title tab-mobile clearfix hidden-sm hidden-md hidden-lg">
+                  <li class="prev current"><i class="fa fa-angle-left"></i></li>
+                  <li class="tab-link tab-title hidden-sm hidden-md hidden-lg current tab-titlexs" data-tab="tab-1">
+                    
+                    <span>Phòng khách</span>
+                    
+                  </li>
+                  <li class="next"><i class="fa fa-angle-right"></i></li>
+                </ul>
+                <ul class="tabs tabs-title tab-desktop ajax clearfix hidden-xs">
+                  
+                  <li class="tab-link has-content current" data-tab="tab-1" data-url="/collections/phong-khach">
+                    <span>Phòng khách</span>
+                  </li>
+                  
+                  <li class="tab-link " data-tab="tab-2" data-url="/collections/phong-ngu">
+                    <span>Phòng ngủ</span>
+                  </li>
+                  
+                  <li class="tab-link " data-tab="tab-3" data-url="/collections/phong-bep">
+                    <span>Phòng bếp</span>
+                  </li>
+                  
+                </ul>
+                
+                <div class="tab-1 tab-content current">
+                  
+                  <div class="section-tour-owl2 products products-view-grid owl-carousel owl-loaded owl-drag" data-lg-items="4" data-md-items="4" data-sm-items="3" data-xs-items="2" data-xss-items="2" data-margin="10" data-nav="true" data-dot="false">
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                  <div class="owl-stage-outer"><div class="owl-stage" style="transform: translate3d(0px, 0px, 0px); transition: all 0s ease 0s; width: 868px;"><div class="owl-item active" style="width: 207px; margin-right: 10px;"><div class="item">
+                      
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+       <div class="ant-product-item">
+<div class="product_row">
+  <div class="item">
+    <div class="item-inner">
+      <div class="image-container">
+        
+        
+        
+        <a href="/products/ke-ti-vi-cobra" class="product-item-photo">
+          <img class="product-image-photo img-responsive center-block" src="//product.hstatic.net/1000343108/product/upload_7be42f22bef54b048660e7d8c3eb73a2_large.jpg" data-lazyload="//product.hstatic.net/1000343108/product/upload_7be42f22bef54b048660e7d8c3eb73a2_large.jpg" alt="Kệ ti vi COBRA">
+        </a>
+      </div>
+      <div class="box-info"> 
+        <h2 class="product-item-name">
+          <a title="Kệ ti vi COBRA" href="/products/ke-ti-vi-cobra" class="product-item-link">
+            Kệ ti vi COBRA
+          </a>
+        </h2>
+        <div class="product-reviews-summary">
+          <div class="rating-summary">
+            <div class="haravan-product-reviews-badge" data-id="1017908240"></div>
+          </div>
+        </div>
+        <div class="item-price">
+          <div class="price-box price-final_price">
+            
+            
+            <span class="special-price">
+              <span class="price-container">
+                <span class="price-wrapper">
+                  <span class="price">6,300,000₫</span>
+                </span>
+              </span>
+            </span>
+            
+            
+          </div>                
+        </div>
+        <div class="box-hover hidden-sm hidden-xs hidden-md">
+          <div class="add-to-links">   
+            <div class="actions-primary">
+              <form action="/cart/add" method="post" class="variants form-nut-grid has-validation-callback" data-id="product-actions-1017908240" enctype="multipart/form-data"> 
+                
+                
+                <input type="hidden" name="id" value="1035080072">
+                <button class="tt-btn-addtocart btn-buy btn-cart btn btn-gray left-to add_to_cart" title="Cho vào giỏ hàng">
+                  <i class="ion ion-md-cart"></i>
+                </button>
+                
+                
+              </form>
+            </div> 
+            
+            <a href="/products/ke-ti-vi-cobra" class="quick-view" title="Xem nhanh">
+              <i class="ion ion-ios-search"></i>
+            </a>
+            
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+                    </div></div><div class="owl-item active" style="width: 207px; margin-right: 10px;"><div class="item">
+                      
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+       <div class="ant-product-item">
+<div class="product_row">
+  <div class="item">
+    <div class="item-inner">
+      <div class="image-container">
+        
+        
+        
+        <a href="/products/ke-ti-vi-mozart" class="product-item-photo">
+          <img class="product-image-photo img-responsive center-block" src="//product.hstatic.net/1000343108/product/upload_324e41dd2c194b99ab53f1e01a7a2e57_large.jpg" data-lazyload="//product.hstatic.net/1000343108/product/upload_324e41dd2c194b99ab53f1e01a7a2e57_large.jpg" alt="Kệ ti vi MOZART">
+        </a>
+      </div>
+      <div class="box-info"> 
+        <h2 class="product-item-name">
+          <a title="Kệ ti vi MOZART" href="/products/ke-ti-vi-mozart" class="product-item-link">
+            Kệ ti vi MOZART
+          </a>
+        </h2>
+        <div class="product-reviews-summary">
+          <div class="rating-summary">
+            <div class="haravan-product-reviews-badge" data-id="1017908243"></div>
+          </div>
+        </div>
+        <div class="item-price">
+          <div class="price-box price-final_price">
+            
+            
+            <span class="special-price">
+              <span class="price-container">
+                <span class="price-wrapper">
+                  <span class="price">2,900,000₫</span>
+                </span>
+              </span>
+            </span>
+            
+            
+          </div>                
+        </div>
+        <div class="box-hover hidden-sm hidden-xs hidden-md">
+          <div class="add-to-links">   
+            <div class="actions-primary">
+              <form action="/cart/add" method="post" class="variants form-nut-grid has-validation-callback" data-id="product-actions-1017908243" enctype="multipart/form-data"> 
+                
+                
+                <input type="hidden" name="id" value="1035080076">
+                <button class="tt-btn-addtocart btn-buy btn-cart btn btn-gray left-to add_to_cart" title="Cho vào giỏ hàng">
+                  <i class="ion ion-md-cart"></i>
+                </button>
+                
+                
+              </form>
+            </div> 
+            
+            <a href="/products/ke-ti-vi-mozart" class="quick-view" title="Xem nhanh">
+              <i class="ion ion-ios-search"></i>
+            </a>
+            
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+                    </div></div><div class="owl-item active" style="width: 207px; margin-right: 10px;"><div class="item">
+                      
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+       <div class="ant-product-item">
+<div class="product_row">
+  <div class="item">
+    <div class="item-inner">
+      <div class="image-container">
+        
+        
+        
+        <a href="/products/ke-ti-vi-suecia" class="product-item-photo">
+          <img class="product-image-photo img-responsive center-block" src="//product.hstatic.net/1000343108/product/upload_01cfaab410184e109f06aa4d760ce1f4_large.jpg" data-lazyload="//product.hstatic.net/1000343108/product/upload_01cfaab410184e109f06aa4d760ce1f4_large.jpg" alt="Kệ ti vi SUECIA">
+        </a>
+      </div>
+      <div class="box-info"> 
+        <h2 class="product-item-name">
+          <a title="Kệ ti vi SUECIA" href="/products/ke-ti-vi-suecia" class="product-item-link">
+            Kệ ti vi SUECIA
+          </a>
+        </h2>
+        <div class="product-reviews-summary">
+          <div class="rating-summary">
+            <div class="haravan-product-reviews-badge" data-id="1017908237"></div>
+          </div>
+        </div>
+        <div class="item-price">
+          <div class="price-box price-final_price">
+            
+            
+            <span class="special-price">
+              <span class="price-container">
+                <span class="price-wrapper">
+                  <span class="price">3,800,000₫</span>
+                </span>
+              </span>
+            </span>
+            
+            
+          </div>                
+        </div>
+        <div class="box-hover hidden-sm hidden-xs hidden-md">
+          <div class="add-to-links">   
+            <div class="actions-primary">
+              <form action="/cart/add" method="post" class="variants form-nut-grid has-validation-callback" data-id="product-actions-1017908237" enctype="multipart/form-data"> 
+                
+                
+                <input type="hidden" name="id" value="1035080066">
+                <button class="tt-btn-addtocart btn-buy btn-cart btn btn-gray left-to add_to_cart" title="Cho vào giỏ hàng">
+                  <i class="ion ion-md-cart"></i>
+                </button>
+                
+                
+              </form>
+            </div> 
+            
+            <a href="/products/ke-ti-vi-suecia" class="quick-view" title="Xem nhanh">
+              <i class="ion ion-ios-search"></i>
+            </a>
+            
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+                    </div></div><div class="owl-item active" style="width: 207px; margin-right: 10px;"><div class="item">
+                      
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+       <div class="ant-product-item">
+<div class="product_row">
+  <div class="item">
+    <div class="item-inner">
+      <div class="image-container">
+        
+        
+        
+        <a href="/products/sofa-connemara" class="product-item-photo">
+          <img class="product-image-photo img-responsive center-block" src="//product.hstatic.net/1000343108/product/upload_5c0eef8cef174220aabe3e448d9a6b69_large.jpg" data-lazyload="//product.hstatic.net/1000343108/product/upload_5c0eef8cef174220aabe3e448d9a6b69_large.jpg" alt="Sofa CONNEMARA">
+        </a>
+      </div>
+      <div class="box-info"> 
+        <h2 class="product-item-name">
+          <a title="Sofa CONNEMARA" href="/products/sofa-connemara" class="product-item-link">
+            Sofa CONNEMARA
+          </a>
+        </h2>
+        <div class="product-reviews-summary">
+          <div class="rating-summary">
+            <div class="haravan-product-reviews-badge" data-id="1017908259"></div>
+          </div>
+        </div>
+        <div class="item-price">
+          <div class="price-box price-final_price">
+            
+            
+            <span class="special-price">
+              <span class="price-container">
+                <span class="price-wrapper">
+                  <span class="price">14,400,000₫</span>
+                </span>
+              </span>
+            </span>
+            
+            
+          </div>                
+        </div>
+        <div class="box-hover hidden-sm hidden-xs hidden-md">
+          <div class="add-to-links">   
+            <div class="actions-primary">
+              <form action="/cart/add" method="post" class="variants form-nut-grid has-validation-callback" data-id="product-actions-1017908259" enctype="multipart/form-data"> 
+                
+                
+                <input type="hidden" name="id" value="1035080103">
+                <button class="tt-btn-addtocart btn-buy btn-cart btn btn-gray left-to add_to_cart" title="Cho vào giỏ hàng">
+                  <i class="ion ion-md-cart"></i>
+                </button>
+                
+                
+              </form>
+            </div> 
+            
+            <a href="/products/sofa-connemara" class="quick-view" title="Xem nhanh">
+              <i class="ion ion-ios-search"></i>
+            </a>
+            
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+                    </div></div></div></div><div class="owl-nav disabled"><div class="owl-prev disabled"><i class="fa fa-angle-left" aria-hidden="true"></i></div><div class="owl-next disabled"><i class="fa fa-angle-right" aria-hidden="true"></i></div></div><div class="owl-dots disabled"></div></div>
+                  
+                  
+                </div>
+                
+                <div class="tab-2 tab-content">
+                  
+                </div>
+                
+                <div class="tab-3 tab-content">
+                  
+                </div>
+                
+                <script>
+
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

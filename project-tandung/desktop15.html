@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop 15</title>
+    <style>
+         body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .left-section, .right-section {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap; /* Cho phép các phần tử trải dài sang nhiều dòng */
+            overflow-y: auto;
+            padding: 20px; /* Điều chỉnh nếu cần thiết */
+        }
+
+        .image-container {
+            flex: 1 0 30%; /* Chia đều không gian cho mỗi ảnh */
+            margin-bottom: 20px; /* Điều chỉnh nếu cần thiết */
+        }
+
+        .left-section .image-container img {
+            max-width: 70%;
+            height: auto;
+        }
+        .right-section .image-container img {
+            max-width: 45%;
+            height: auto;
+        }
+        p {
+            color: #112F75;
+            font-size: 50px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="left-section">
+        <div class="image-container">
+            <img src="./image/png1.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/png2.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/png3.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/png4.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/png5.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/png6.png" alt="Left Image">
+        </div>
+        <p>Calendar</p>
+    </div>
+
+    <div class="right-section">
+        <div class="image-container">
+            <img src="./image/lịch bàn final-01.jpg" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t2.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t3.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t4.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t5.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t6.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t7.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t8.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn in lại_t9.png" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn final-10.jpg" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn final-11.jpg" alt="Left Image">
+        </div>
+        <div class="image-container">
+            <img src="./image/lịch bàn final-12.jpg" alt="Left Image">
+        </div>
+        <p>Desk Calendar</p>
+    </div>
+    <script>
+        // Chờ 5 giây và chuyển hướng sang trang desktop7.html
+        setTimeout(function() {
+            window.location.href = "desktop7.html";
+        }, 5000);
+
+        // Chuyển hướng khi bấm vào bất kỳ vị trí trên màn hình
+        document.body.addEventListener("click", function() {
+            window.location.href = "desktop7.html";
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desktop 2</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Regular !important;
+        }
+
+        #Desktop2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Chia thành 2 cột bằng nhau */
+            width: 100%;
+            height: 100vh;
+        }
+
+        #leftContent, #rightContent {
+            padding: 20px;
+        }
+
+        #leftContent h2 {
+            color: red;
+            text-align: center;
+            font-size: 60px !important;
+        }
+
+        #rightContent {
+            background-image: url('./image/Vector.png');
+            background-repeat: no-repeat;
+            background-position: right top;
+            text-align: center;
+            position: relative;
+        }
+
+        #rightContent img {
+            margin-top: 150px;
+            margin-left: 150px;
+            border-radius: 50%;
+            max-width: 100%;
+            clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
+        }
+
+        .small-frames-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-left: 20%;
+        }
+
+        .small-frame {
+            width: 300px;
+            height: 200px;
+            padding: 10px;
+            margin: auto;
+            display: flex;
+            flex-direction: column; /* Hiển thị các phần tử con theo chiều dọc */
+            align-items: flex-start; /* Căn chỉnh các phần tử con theo chiều ngang, bên trái */
+        }
+
+        .small-frame h3 {
+            text-align: left; /* Căn chỉnh văn bản trong thẻ h3 sang bên trái */
+            margin-bottom: 10px; /* Khoảng cách giữa thẻ h3 và phần nội dung bên dưới */
+        }
+
+        .education-info {
+            display: flex;
+        }
+
+        .date {
+            flex: 0 0 auto; /* Không co giãn */
+            margin-right: 10px; /* Điều chỉnh khoảng cách giữa năm và chi tiết */
+        }
+
+        .details {
+            flex: 1 1 auto; /* Co giãn */
+        }
+        .small-frame span {
+            flex: 1 1 50%;
+        }
+
+        .small-frame h4 {
+            margin: 0; /* Loại bỏ margin của h4 để nó không tạo khoảng trắng dư thừa */
+        }
+
+        .small-frame p {
+            margin: 0; /* Loại bỏ margin của p để nó không tạo khoảng trắng dư thừa */
+        }
+        .university {
+        display: block;
+        margin-top: 5px; /* Điều chỉnh khoảng cách giữa các dòng nếu cần thiết */
+        font-family: 'Light', sans-serif; /* Đặt font chữ */
+        font-style: italic; /* Đặt kiểu chữ */
+        }
+        .education-info p {
+            margin-bottom: -8px;
+        }
+        .education-info {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .education-info img {
+            width: 70%;
+            object-fit: cover; /* Đảm bảo ảnh không bị biến dạng */
+            margin: 5px; /* Khoảng cách giữa các ảnh */
+        }
+
+        /* Đặt ảnh thứ 4 và thứ 5 vào hàng thứ 2 */
+        .education-info img:nth-child(4),
+        .education-info img:nth-child(5) {
+            margin-top: 10px; /* Đặt khoảng cách giữa hàng 1 và hàng 2 */
+        }
+        .button-container {
+          display: flex;
+          margin-bottom: 10px; /* Khoảng cách giữa các hàng */
+        }
+
+        .button {
+         width: 201px;
+         height: 71px;
+         border-radius: 30px;
+          padding: 10px;
+          margin-right: 10px; /* Khoảng cách giữa các nút */
+          font-size: 16px;
+          color: #fff;
+        }
+        .branding{
+            border: #E6BC99;
+            background-color: #E6BC99;
+        }
+        .magazine{
+            border: #3B3E19;
+            background-color: #3B3E19;
+        }   
+        .book{
+            border: #CD940C;
+            background-color: #CD940C;
+        }   
+        .calendar{
+            border: #505F7D;
+            background-color: #505F7D;
+        }
+         .button-container button:hover {
+            cursor: pointer;
+        }   
+    </style>
+</head>
+<body>
+    <div id="Desktop2">
+        <div id="leftContent">
+            <h2>About Me</h2>
+            <div class="small-frames-container">
+                <div class="small-frame">
+                    <h3>Education</h3>
+                    <div class="education-info">
+                        <div class="date">
+                            2021-2026:
+                        </div>
+                        <div class="details">
+                            <strong>Graphic Design</strong><br>
+                            <span class="university">Hanoi Architecture University</span>
+                        </div>
+                    </div>
+                    <div class="education-info">
+                        <div class="date">
+                            2021-2023:
+                        </div>
+                        <div class="details">
+                            <strong>Graphic & UX/UI Design 
+</strong><br>
+                            <span class="university">Arena Multimedia</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="small-frame">
+                    <h3>Skill</h3>
+                    <div class="education-info">
+                        <span>
+                            <p>Logo Design</p>
+                            <br>
+                            <p>Illutration</p>
+                            <br>
+                            <p>Brand Identity</p>
+                            <br>
+                            <p>Typography</p><br>
+                            <p>UX/UI Design</p>
+                        </span>
+                    </div>
+                </div>
+                <div class="small-frame">
+                    <h3>Software</h3>
+                    <div class="education-info">
+                        <img src="./image/ung dung.png" alt="Ảnh mô tả">
+                    </div>
+                </div>
+                <div class="small-frame">
+                    <h3>Languages</h3>
+                    <div class="education-info">
+                        <span>
+                            <p>Vietnamese</p>
+                            <br>
+                            <p>English</p>
+                        </span>
+                    </div>
+                </div>
+                <div class="small-frame">
+                    <h3>My Project</h3>
+                </div>
+                <div class="small-frame">
+                    <h3> </h3>
+                    <div class="button-container">
+                        <a href="desktop3.html"><button class="button branding">1. Branding</button></a>
+                        <a href="desktop5.html"><button class="button magazine">3. Magazine</button></a>
+                    </div>
+                    <div class="button-container">
+                        <a href="desktop4.html"><button class="button book">2. Book</button></a>
+                        <a href="desktop7.html"><button class="button calendar">4. Calendar</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="rightContent">
+            <img src="./image/Clip path group.png" alt="Ảnh mô tả">
+        </div>
+    </div>
+</body>
+</html>

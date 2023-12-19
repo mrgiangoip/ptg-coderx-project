@@ -1,0 +1,21 @@
+extends ../layouts/common
+
+block content
+  h1 Login
+
+  if errors
+    .alert.alert-danger
+      ul
+        each error in errors
+          li= error
+
+  form(action="/auth/login", method="POST")
+    .form-group
+      label(for="email") Email
+      input#email.form-control(name="email", type="text", value=values ? values.email : '')
+
+    .form-group
+      label(for="password") Password
+      input#password.form-control(name="password", type="password", value=values ? values.password : '')
+
+    button.btn.btn-primary.mt-2 Login
