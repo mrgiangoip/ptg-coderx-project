@@ -15,6 +15,8 @@ This project is just a demo how to use git
 // git checkout -- <file>
 // get reset
 
+// git config --global credential.helper "cache --timeout=18000"
+
 // git checkout -b <branch> (branching)
 // git checkout <branch>
 // git merge
